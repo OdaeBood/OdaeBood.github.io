@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bish Mafiosa OS</title>
+    <style>
+        body {
+            background-color: black;
+            color: #00FF00;
+            font-family: monospace;
+            text-align: left;
+            margin: 0;
+            padding: 20px;
+        }
+        #screen {
+            width: 90%;
+            max-width: 800px;
+            background-color: black;
+            padding: 20px;
+            border: 2px solid #00FF00;
+            box-shadow: 0 0 10px #00FF00;
+        }
+        h1 {
+            color: #FFD700;
+            font-size: 22px;
+            text-align: left;
+        }
+        p {
+            font-size: 14px;
+            text-align: left;
+            line-height: 1.5;
+            color: gray;
+        }
+        .menu a {
+            color: #00FF00;
+            text-decoration: none;
+            display: block;
+            padding: 5px 0;
+            font-size: 16px;
+        }
+        .menu a:hover {
+            background-color: #00FF00;
+            color: black;
+        }
+        textarea, input {
+            width: 100%;
+            background: black;
+            color: #00FF00;
+            border: 1px solid #00FF00;
+            font-family: monospace;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .footer {
+            margin-top: 20px;
+            font-style: italic;
+            color: #00FF00;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div id="screen">
+        <h1><< Bish Mafiosa OS >></h1>
+        <p>Booting up...</p>
+        <p>Decrypting hidden archives...</p>
+        <p>Rewriting the system logs...</p>
+        <p>Initializing underground access...</p>
+
+        <div class="menu">
+            <p><a href="#" onclick="showPage('thoughts')">[1] Thoughts - Archive of Echoes</a></p>
+            <p><a href="#" onclick="showPage('moments')">[2] Moments - Data Fragments</a></p>
+            <p><a href="#" onclick="showPage('projects')">[3] Projects - Files Unclassified</a></p>
+            <p><a href="#" onclick="showPage('about')">[4] About</a></p>
+        </div>
+
+        <p class="footer">Tap [ENTER] to rewrite the script...</p>
+    </div>
+
+    <div id="content" class="hidden"></div>
+
+    <script>
+        const pages = {};
+        const thoughts = JSON.parse(localStorage.getItem("thoughts")) || [
+            { title: "That Hotel In Amsterdam", body: `"I heard a whisper that said:
+'What are you building in your sandbox?
+What's pulling you forward, into the future?
+There's a quiet power in small actions, you know:
+In the fear when you fly, yet you fly nonetheless.
+Who are you to not even try, wallowing in self-pity—
+when those before you have endured worse hardships and more heartache.
+Start with what you have // start from there.
+It might get easier, it might not, but—
+There's more to the iceberg,
+So first learn to dance in the rain before balancing on ice!'
+
+And that got me off my ass...
+
+12.31.24"` }
+        ];
+
+        function showPage(page) {
+            document.getElementById("screen").classList.add("hidden");
+            document.getElementById("content").classList.remove("hidden");
+
+            if (page === "thoughts") {
+                renderThoughts();
+            }
+
+            document.getElementById("content").innerHTML = pages[page] || "Page not found!";
+        }
+
+        function renderThoughts() {
+            let thoughtsList = "<div class='title'><< Thoughts - Archive of Echoes >></div>";
+            thoughtsList += "<ul>";
+
+            thoughts.forEach((thought, index) => {
+                thoughtsList += `<li>
+                    << <a href="#" onclick="viewThought(${index})">${thought.title}</a> >>
+                    <span onclick="editThought(${index})" style="cursor:pointer; color:gray;"> edit</span>
+                </li>`;
+            });
+
+            thoughtsList += "</ul>";
+            thoughtsList += `<p onclick="showAddThoughtForm()" style="cursor:pointer;"><< Add Entry >></p>`;
+            thoughtsList += `<br><a href="#" onclick="showPage('menu')">>> Return to Boot Screen</a>`;
+
+            pages["thoughts"] = thoughtsList;
+        }
+
+        function viewThought(index) {
+            const thought = thoughts[index];
+
+            let thoughtPage = `<div class='title'><< ${thought.title} >></div>`;
+            thoughtPage += `<p>${thought.body.replace(/
+/g, "<br>")}</p>`;
+            thoughtPage += `<br><a href="#" onclick="showPage('thoughts')">>> Return to Thoughts Archive</a>`;
+
+            pages["view-thought"] = thoughtPage;
+            showPage("view-thought");
+        }
+
+        function showAddThoughtForm() {
+            let formHtml = `<div class='title'><< Add New Thought >></div>`;
+            formHtml += `<input id="new-title" placeholder="Title" class="entry-input"><br>`;
+            formHtml += `<textarea id="new-body" placeholder="Write your thought..." class="entry-input"></textarea><br>`;
+            formHtml += `<p onclick="saveThought()" style="cursor:pointer;"><< Save Changes >></p>`;
+            formHtml += `<br><a href="#" onclick="showPage('thoughts')">>> Cancel</a>`;
+
+            pages["add-thought"] = formHtml;
+            showPage("add-thought");
+        }
+
+        function saveThought() {
+            const newTitle = document.getElementById("new-title").value;
+            const newBody = document.getElementById("new-body").value;
+
+            if (newTitle && newBody) {
+                thoughts.push({ title: newTitle, body: newBody });
+                localStorage.setItem("thoughts", JSON.stringify(thoughts));
+                showPage("thoughts");
+            } else {
+                alert("Please fill out all fields.");
+            }
+        }
+
+        function editThought(index) {
+            const thought = thoughts[index];
+
+            let formHtml = `<div class='title'><< Editing: ${thought.title} >></div>`;
+            formHtml += `<input id="edit-title" value="${thought.title}" class="entry-input"><br>`;
+            formHtml += `<textarea id="edit-body" class="entry-input">${thought.body}</textarea><br>`;
+            formHtml += `<p onclick="updateThought(${index})" style="cursor:pointer;"><< Save Changes >></p>`;
+            formHtml += `<br><a href="#" onclick="showPage('thoughts')">>> Cancel</a>`;
+
+            pages["edit-thought"] = formHtml;
+            showPage("edit-thought");
+        }
+
+        function updateThought(index) {
+            thoughts[index].title = document.getElementById("edit-title").value;
+            thoughts[index].body = document.getElementById("edit-body").value;
+
+            localStorage.setItem("thoughts", JSON.stringify(thoughts));
+            showPage("thoughts");
+        }
+    </script>
+</body>
+</html>
