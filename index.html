@@ -41,7 +41,7 @@
             margin-bottom: 20px;
         }
         .star-container {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
@@ -71,6 +71,11 @@
             margin-top: 20px;
             padding: 10px;
         }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
     </style>
 </head>
 <body>
@@ -80,7 +85,7 @@
         <button onclick="enterHyperdrive()" id="hyperdriveButton">Enter Hyperdrive</button>
     </div>
     <div class="star-container" id="starContainer"></div>
-
+    <canvas id="drawingCanvas"></canvas>
     <script>
         let countdown = 10;
         function updateCountdown() {
@@ -101,17 +106,16 @@
         function generateStars() {
             const starContainer = document.getElementById('starContainer');
             const littleDipperCoords = [
-                [window.innerWidth * 0.3, window.innerHeight * 0.2],
-                [window.innerWidth * 0.35, window.innerHeight * 0.3],
-                [window.innerWidth * 0.4, window.innerHeight * 0.4],
-                [window.innerWidth * 0.45, window.innerHeight * 0.5],
-                [window.innerWidth * 0.42, window.innerHeight * 0.55],
-                [window.innerWidth * 0.37, window.innerHeight * 0.6],
-                [window.innerWidth * 0.32, window.innerHeight * 0.65]
+                [window.innerWidth * 0.4, window.innerHeight * 0.2],
+                [window.innerWidth * 0.45, window.innerHeight * 0.3],
+                [window.innerWidth * 0.5, window.innerHeight * 0.4],
+                [window.innerWidth * 0.55, window.innerHeight * 0.5],
+                [window.innerWidth * 0.52, window.innerHeight * 0.55],
+                [window.innerWidth * 0.47, window.innerHeight * 0.6],
+                [window.innerWidth * 0.42, window.innerHeight * 0.65]
             ];
-            let drawnLines = [];
-
-            for (let i = 0; i < 500; i++) {
+            
+            for (let i = 0; i < 800; i++) {
                 let randStar = document.createElement('div');
                 randStar.classList.add('star');
                 randStar.style.left = `${Math.random() * window.innerWidth}px`;
@@ -119,6 +123,10 @@
                 starContainer.appendChild(randStar);
             }
 
+            const ctx = document.getElementById("drawingCanvas").getContext("2d");
+            ctx.strokeStyle = "yellow";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
             littleDipperCoords.forEach((coords, index) => {
                 let star = document.createElement('div');
                 star.classList.add('star');
@@ -126,38 +134,14 @@
                 star.style.top = `${coords[1]}px`;
                 star.dataset.index = index;
                 starContainer.appendChild(star);
-                
-                if (index < littleDipperCoords.length - 1) {
-                    let line = document.createElement('div');
-                    line.classList.add('trace-line');
-                    line.style.left = `${coords[0]}px`;
-                    line.style.top = `${coords[1]}px`;
-                    starContainer.appendChild(line);
-                    drawnLines.push(line);
+                if (index === 0) {
+                    ctx.moveTo(coords[0], coords[1]);
+                } else {
+                    ctx.lineTo(coords[0], coords[1]);
                 }
             });
-
-            setTimeout(() => {
-                drawnLines.forEach(line => line.style.opacity = '0');
-            }, 3000);
-
-            enableLineDrawing();
-        }
-
-        function enableLineDrawing() {
-            let drawnStars = [];
-            document.querySelectorAll('.star').forEach(star => {
-                star.addEventListener('click', function () {
-                    if (drawnStars.length === 0 || drawnStars[drawnStars.length - 1].dataset.index == this.dataset.index - 1) {
-                        this.style.background = 'yellow';
-                        drawnStars.push(this);
-                        if (drawnStars.length === 7) {
-                            document.getElementById('message').style.display = 'block';
-                            document.getElementById('hyperdriveButton').style.display = 'block';
-                        }
-                    }
-                });
-            });
+            ctx.stroke();
+            setTimeout(() => ctx.clearRect(0, 0, window.innerWidth, window.innerHeight), 3000);
         }
 
         function enterHyperdrive() {
