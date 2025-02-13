@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Awaiting Coordinates...</title>
+    <style>
+        @font-face {
+            font-family: 'PixelFont';
+            src: url('path-to-your-pixel-font.woff2') format('woff2');
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            overflow: hidden;
+            font-family: 'PixelFont', sans-serif;
+            text-align: center;
+            color: white;
+            background: black;
+            position: relative;
+            cursor: url('spaceship-cursor.png'), auto;
+        }
+        .container {
+            position: absolute;
+            bottom: 5%; /* Adjusted to move box to bottom */
+            left: 50%;
+            transform: translate(-50%, 0);
+            background: rgba(0, 0, 0, 0.6);
+            padding: 25px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            border: 3px solid yellow;
+            box-shadow: 0px 0px 10px yellow;
+        }
+        .countdown {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        .star-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+        }
+        .star {
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+        }
+        .twinkle {
+            animation: twinkle 1s infinite alternate;
+        }
+        @keyframes twinkle {
+            from { opacity: 1; }
+            to { opacity: 0.3; }
+        }
+        .trace-line {
+            position: absolute;
+            height: 2px;
+            background: yellow;
+            display: block;
+            transition: opacity 3s ease-in-out;
+        }
+        .message {
+            display: none;
+            margin-top: 20px;
+            font-size: 1.2rem;
+        }
+        #hyperdriveButton {
+            display: none;
+            margin-top: 20px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="centerBox">
+        <div class="countdown" id="countdown">Awaiting coordinates... 10</div>
+        <div class="message" id="message">Curiosity fuels adventure. But only the brave explore the unknown...</div>
+        <button onclick="enterHyperdrive()" id="hyperdriveButton">Enter Hyperdrive</button>
+    </div>
+    <div class="star-container" id="starContainer"></div>
+
+    <script>
+        let countdown = 10;
+        function updateCountdown() {
+            const countdownElement = document.getElementById('countdown');
+            if (countdownElement) {
+                countdownElement.innerText = `Awaiting coordinates... ${countdown}`;
+                if (countdown > 0) {
+                    countdown--;
+                    setTimeout(updateCountdown, 1000);
+                } else {
+                    countdownElement.style.display = 'none';
+                    generateStars();
+                }
+            }
+        }
+        updateCountdown();
+
+        function generateStars() {
+            const starContainer = document.getElementById('starContainer');
+            const littleDipperCoords = [
+                [window.innerWidth * 0.3, window.innerHeight * 0.2],
+                [window.innerWidth * 0.35, window.innerHeight * 0.3],
+                [window.innerWidth * 0.4, window.innerHeight * 0.4],
+                [window.innerWidth * 0.45, window.innerHeight * 0.5],
+                [window.innerWidth * 0.42, window.innerHeight * 0.55],
+                [window.innerWidth * 0.37, window.innerHeight * 0.6],
+                [window.innerWidth * 0.32, window.innerHeight * 0.65]
+            ];
+            let drawnLines = [];
+
+            for (let i = 0; i < 600; i++) {  // Increased star count slightly
+                let randStar = document.createElement('div');
+                randStar.classList.add('star');
+                randStar.style.left = `${Math.random() * window.innerWidth}px`;
+                randStar.style.top = `${Math.random() * window.innerHeight}px`;
+                starContainer.appendChild(randStar);
+            }
+
+            littleDipperCoords.forEach((coords, index) => {
+                let star = document.createElement('div');
+                star.classList.add('star', 'twinkle'); // Added twinkle effect
+                star.style.left = `${coords[0]}px`;
+                star.style.top = `${coords[1]}px`;
+                star.dataset.index = index;
+                starContainer.appendChild(star);
+                
+                if (index < littleDipperCoords.length - 1) {
+                    let line = document.createElement('div');
+                    line.classList.add('trace-line');
+                    line.style.left = `${coords[0]}px`;
+                    line.style.top = `${coords[1]}px`;
+                    starContainer.appendChild(line);
+                    drawnLines.push(line);
+                }
+            });
+
+            setTimeout(() => {
+                drawnLines.forEach(line => line.style.opacity = '0');
+            }, 3000);
+
+            enableLineDrawing();
+        }
+
+        function enableLineDrawing() {
+            let drawnStars = [];
+            document.querySelectorAll('.star').forEach(star => {
+                star.addEventListener('click', function () {
+                    if (drawnStars.length === 0 || drawnStars[drawnStars.length - 1].dataset.index == this.dataset.index - 1) {
+                        this.style.background = 'yellow';
+                        drawnStars.push(this);
+                        if (drawnStars.length === 7) {
+                            document.getElementById('message').style.display = 'block';
+                            document.getElementById('hyperdriveButton').style.display = 'block';
+                        }
+                    }
+                });
+            });
+        }
+
+        function enterHyperdrive() {
+            document.body.innerHTML = "<div style='font-size: 2rem; text-align: center; color: white; margin-top: 20vh;'>Engaging Hyperdrive...</div>";
+            setTimeout(() => {
+                document.body.innerHTML = `<div class='dashboard' id='dashboard'>
+                    <h2>Mission Control</h2>
+                    <p>Commander, our intergalactic systems have detected high levels of affection. Mission: Valentine is now officially GO. Prepare for a stellar surprise!</p>
+                </div>`;
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
