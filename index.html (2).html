@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine?</title>
+    <style>
+        @font-face {
+            font-family: 'PixelFont';
+            src: url('path-to-your-pixel-font.woff2') format('woff2');
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            overflow: hidden;
+            font-family: 'PixelFont', sans-serif;
+            background: url('psychedelic-background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            text-align: center;
+            color: white;
+        }
+        .container {
+            position: relative;
+            margin-top: 10vh;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            border: 3px solid yellow;
+            box-shadow: 0px 0px 10px yellow;
+        }
+        h1 {
+            font-size: 1.8rem;
+            text-shadow: 3px 3px #000;
+            background: purple;
+            padding: 10px;
+            border-radius: 10px;
+            color: white;
+        }
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button {
+            font-size: 1.2rem;
+            padding: 12px;
+            border: none;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: transform 0.3s ease-in-out;
+            width: 100%;
+            border: 2px solid yellow;
+            box-shadow: 0px 0px 5px yellow;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        .yes { background: #32CD32; color: white; }
+        .maybe { background: #FFD700; color: black; }
+        .no { background: #DC143C; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>From the Big Bang to now, the universe led me to you. Like dark matter, our love is invisible but holds everything together in this cosmic happenstance—just as written in the constellations. Are we destined for a cosmic collision this Valentine’s Day? Will you orbit into my heart and stay in my gravitational pull? Will you be the co-pilot on this interstellar journey of love?</h1>
+        <div class="buttons">
+            <a href="yes.html">
+                <button class="yes">✅ Yes, of course!</button>
+            </a>
+            <button class="maybe" onclick="showResponse('maybe')">🧐 Hmm… tell me more.</button>
+            <button class="no" onclick="showResponse('no')">Nah, I'm good</button>
+        </div>
+    </div>
+</body>
+</html>
