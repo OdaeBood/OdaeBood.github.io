@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine?</title>
+    <style>
+        @font-face {
+            font-family: 'PixelFont';
+            src: url('path-to-your-pixel-font.woff2') format('woff2');
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            overflow: hidden;
+            font-family: 'PixelFont', sans-serif;
+            text-align: center;
+            color: white;
+            padding: 10px;
+        }
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+        }
+        .background-container img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        .container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 15px;
+            width: 95%;
+            max-width: 450px;
+            border: 3px solid yellow;
+            box-shadow: 0px 0px 10px yellow;
+        }
+        h1 {
+            font-size: 1.4rem;
+            text-shadow: 3px 3px #000;
+            background: purple;
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+        }
+        .buttons {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        button {
+            font-size: 1rem;
+            padding: 14px;
+            border: 2px solid yellow;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: transform 0.3s ease-in-out;
+            width: 100%;
+            background: transparent;
+            color: white;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        #response {
+            font-size: 1rem;
+            margin-top: 12px;
+            display: none;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            border: 2px solid yellow;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-container">
+        <img src="https://raw.githubusercontent.com/OdaeBood/OdaeBood.github.io/main/Video%20Game%20Art%20GIF%20by%20Imagine%20Dragons.gif" class="bg-gif" style="opacity: 1;">
+        <img src="https://raw.githubusercontent.com/OdaeBood/OdaeBood.github.io/main/Sci%20Fi%20Art%20GIF%20by%20Imagine%20Dragons%20(1).gif" class="bg-gif">
+        <img src="https://raw.githubusercontent.com/OdaeBood/OdaeBood.github.io/main/Sci%20Fi%20Art%20GIF%20by%20Imagine%20Dragons%20(3).gif" class="bg-gif">
+        <img src="https://raw.githubusercontent.com/OdaeBood/OdaeBood.github.io/main/Sci%20Fi%20Art%20GIF%20by%20Imagine%20Dragons%20(4).gif" class="bg-gif">
+    </div>
+
+    <div class="container">
+        <h1>From the Big Bang to now, the universe led me to you. Like dark matter, our love is invisible but holds everything together in this cosmic happenstance—just as written in the constellations. Are we destined for a cosmic collision this Valentine’s Day? Will you orbit into my heart and stay in my gravitational pull? Will you be the co-pilot on this interstellar journey of love?</h1>
+        <div class="buttons">
+            <button class="yes" onclick="revealCoordinates()">Yes, of course!</button>
+            <button class="maybe" onclick="showResponse('maybe')">Hmm... tell me more.</button>
+            <button class="no" onclick="showResponse('no')">Nah, I'm good</button>
+        </div>
+        <div id="response"></div>
+    </div>
+
+    <script>
+        let currentIndex = 0;
+        const images = document.querySelectorAll('.bg-gif');
+        
+        function cycleBackgrounds() {
+            images.forEach((img, index) => {
+                img.style.opacity = (index === currentIndex) ? "1" : "0";
+            });
+            currentIndex = (currentIndex + 1) % images.length;
+        }
+
+        setInterval(cycleBackgrounds, 1000); // Each GIF transitions after 1 second
+
+        function revealCoordinates() {
+            document.body.innerHTML = "<div style='position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: black; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;'>Await your coordinates...</div>";
+        }
+
+        function showResponse(choice) {
+            const responseDiv = document.getElementById("response");
+            responseDiv.style.display = "block";
+            if (choice === "maybe") {
+                responseDiv.innerHTML = "Curiosity fuels adventure. But only the brave explore the unknown. A journey beyond the stars awaits, but are you ready? Secrets of the universe can’t be rushed...";
+            } else if (choice === "no") {
+                responseDiv.innerHTML = "Aw, maybe in another timeline!";
+            }
+        }
+    </script>
+</body>
+</html>
