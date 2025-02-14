@@ -24,14 +24,6 @@
             opacity: 0;
             transition: opacity 2s ease-in-out;
         }
-        .blink {
-            animation: blink-animation 1s steps(2, start) infinite;
-        }
-        @keyframes blink-animation {
-            to {
-                visibility: hidden;
-            }
-        }
         .background {
             position: fixed;
             top: 0;
@@ -42,40 +34,6 @@
             background-size: cover;
             z-index: -1;
         }
-        .text-box {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 20px;
-            border: 3px solid white;
-            width: 80%;
-            max-width: 600px;
-            text-align: left;
-            font-size: 1.2rem;
-            position: relative;
-        }
-        .typing {
-            white-space: pre-wrap;
-            overflow: hidden;
-            display: inline-block;
-        }
-        .options {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .option {
-            padding: 10px;
-            border: 2px solid white;
-            background: none;
-            color: white;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .option:hover {
-            background: white;
-            color: black;
-        }
         .transition {
             background: url('hyperdrive-transition.gif') no-repeat center center;
             background-size: cover;
@@ -85,6 +43,39 @@
             width: 100vw;
             height: 100vh;
             z-index: 10;
+        }
+        .game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: url('game-background.gif') no-repeat center center;
+            background-size: cover;
+        }
+        .character {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: url('astronaut.png') no-repeat center center;
+            background-size: contain;
+        }
+        .vinyl {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: url('vinyl-record.png') no-repeat center center;
+            background-size: contain;
+        }
+        .win-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border: 3px solid white;
+            display: none;
         }
     </style>
 </head>
@@ -103,24 +94,17 @@
 
     <div class="background hidden" id="gif-background"></div>
 
-    <div id="transmission-section" class="text-box hidden">
-        <h2>Incoming Transmission...</h2>
-        <p id="typing-text" class="typing"></p>
-    </div>
-
-    <div id="quiz-section" class="text-box hidden">
-        <h2>Cosmic Compatibility Test</h2>
-        <p id="quiz-question"></p>
-        <div class="options" id="options-container"></div>
-    </div>
-
-    <div id="role-section" class="text-box hidden">
+    <div id="role-section" class="hidden">
         <h2>Congratulations!</h2>
-        <p id="role-text"></p>
-        <p id="nickname-text"></p>
         <p>We've set course for <strong>Planet Ambrosia</strong>. A world of celestial melodies and harmonic wonders.</p>
         <p>Are you ready to embark on the next phase of your journey?</p>
-        <button onclick="startGame()" class="option">🚀 Let's go!</button>
+        <button onclick="startHyperdrive()" class="option">🚀 Let's go!</button>
+    </div>
+
+    <div id="game-container" class="hidden game-container">
+        <div id="character" class="character" style="top: 50%; left: 50%;"></div>
+        <div id="vinyl-container"></div>
+        <div id="win-message" class="win-message">🎶 Mission Success! 🎶</div>
     </div>
 
     <script>
@@ -129,14 +113,11 @@
         const countdownSection = document.getElementById("countdown-section");
         const coordinatesSection = document.getElementById("coordinates-section");
         const transitionSection = document.getElementById("transition-section");
-        const transmissionSection = document.getElementById("transmission-section");
-        const quizSection = document.getElementById("quiz-section");
         const roleSection = document.getElementById("role-section");
-        const quizQuestion = document.getElementById("quiz-question");
-        const optionsContainer = document.getElementById("options-container");
-        const roleText = document.getElementById("role-text");
-        const nicknameText = document.getElementById("nickname-text");
-        const gifBackground = document.getElementById("gif-background");
+        const gameContainer = document.getElementById("game-container");
+        const character = document.getElementById("character");
+        const vinylContainer = document.getElementById("vinyl-container");
+        const winMessage = document.getElementById("win-message");
 
         function startCountdown() {
             const interval = setInterval(() => {
@@ -155,9 +136,7 @@
                                 transitionSection.classList.remove("hidden");
                                 setTimeout(() => {
                                     transitionSection.classList.add("hidden");
-                                    gifBackground.classList.remove("hidden");
-                                    transmissionSection.classList.remove("hidden");
-                                    typeMessage();
+                                    roleSection.classList.remove("hidden");
                                 }, 4000);
                             }, 2000);
                         }, 4000);
@@ -166,66 +145,57 @@
             }, 1000);
         }
 
-        const message = "Hi Delah, this is the captain speaking. We are currently travelling at light speed towards our destination. Why don't we burn some time along the way?";
-        const typingText = document.getElementById("typing-text");
-        let currentIndex = 0;
-
-        function typeMessage() {
-            if (currentIndex < message.length) {
-                typingText.innerHTML += message[currentIndex];
-                currentIndex++;
-                setTimeout(typeMessage, 50);
-            } else {
-                setTimeout(startQuiz, 2000);
-            }
-        }
-
-        const quizData = [
-            { question: "Which celestial body fascinates you the most?", options: ["A Black Hole", "A Distant Galaxy", "The Moon"], answers: ["Navigator", "Engineer", "Communications Officer"] },
-            { question: "If you were given command, how would you lead?", options: ["With Precise Calculations", "With Innovative Ideas", "With Motivational Speeches"], answers: ["Captain", "Scientist", "Diplomat"] },
-            { question: "In the event of an alien encounter, what is your first response?", options: ["Observe from a distance", "Attempt communication", "Prepare for battle"], answers: ["Explorer", "Linguist", "Defender"] }
-        ];
-
-        let questionIndex = 0;
-        let chosenRoles = [];
-
-        function startQuiz() {
-            transmissionSection.classList.add("hidden");
-            quizSection.classList.remove("hidden");
-            showQuestion();
-        }
-
-        function showQuestion() {
-            if (questionIndex < quizData.length) {
-                const data = quizData[questionIndex];
-                quizQuestion.innerText = data.question;
-                optionsContainer.innerHTML = "";
-
-                data.options.forEach((option, i) => {
-                    const btn = document.createElement("button");
-                    btn.classList.add("option");
-                    btn.innerText = option;
-                    btn.onclick = () => {
-                        chosenRoles.push(data.answers[i]);
-                        questionIndex++;
-                        showQuestion();
-                    };
-                    optionsContainer.appendChild(btn);
-                });
-            } else {
-                assignRole();
-            }
-        }
-
-        function assignRole() {
-            quizSection.classList.add("hidden");
-            roleSection.classList.remove("hidden");
-            roleText.innerText = `Your role on the ship is: ${chosenRoles[0]}!`;
-            nicknameText.innerText = `The crew has given you the nickname: "Ms. Calypso" for your raw talent and unwavering passion for music.`;
+        function startHyperdrive() {
+            roleSection.classList.add("hidden");
+            transitionSection.classList.remove("hidden");
+            setTimeout(() => {
+                transitionSection.classList.add("hidden");
+                gameContainer.classList.remove("hidden");
+                startGame();
+            }, 4000);
         }
 
         function startGame() {
-            window.location.href = "game.html";
+            let collected = 0;
+            const vinylPositions = [
+                { top: "10%", left: "20%" },
+                { top: "30%", left: "50%" },
+                { top: "50%", left: "70%" },
+                { top: "70%", left: "10%" },
+                { top: "80%", left: "60%" },
+                { top: "20%", left: "80%" },
+                { top: "40%", left: "30%" },
+                { top: "60%", left: "90%" },
+                { top: "85%", left: "40%" },
+                { top: "15%", left: "55%" }
+            ];
+
+            vinylPositions.forEach((pos, i) => {
+                let vinyl = document.createElement("div");
+                vinyl.classList.add("vinyl");
+                vinyl.style.top = pos.top;
+                vinyl.style.left = pos.left;
+                vinyl.dataset.index = i;
+                vinyl.onclick = function () {
+                    vinyl.remove();
+                    collected++;
+                    if (collected === 10) {
+                        winMessage.style.display = "block";
+                    }
+                };
+                vinylContainer.appendChild(vinyl);
+            });
+
+            document.addEventListener("keydown", moveCharacter);
+        }
+
+        function moveCharacter(event) {
+            let top = parseInt(character.style.top);
+            let left = parseInt(character.style.left);
+            if (event.key === "ArrowUp" && top > 0) character.style.top = (top - 5) + "%";
+            if (event.key === "ArrowDown" && top < 95) character.style.top = (top + 5) + "%";
+            if (event.key === "ArrowLeft" && left > 0) character.style.left = (left - 5) + "%";
+            if (event.key === "ArrowRight" && left < 95) character.style.left = (left + 5) + "%";
         }
 
         startCountdown();
