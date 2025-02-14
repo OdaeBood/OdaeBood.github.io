@@ -17,51 +17,61 @@
             height: 100vh;
             overflow: hidden;
         }
+
         .hidden {
             display: none;
         }
+
         .fade-out {
             opacity: 0;
             transition: opacity 2s ease-in-out;
         }
+
         .blink {
             animation: blink-animation 1s steps(2, start) infinite;
         }
+
         @keyframes blink-animation {
             to {
                 visibility: hidden;
             }
         }
-        .background {
-            background-image: url('psychedelic-background.gif');
+
+        /* Background for the Click the Stars Page */
+        #decrypt-section {
+            background: url('psychedelic-background.gif') no-repeat center center;
             background-size: cover;
-            background-position: center;
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: -1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
+
         .text-box {
             background: rgba(0, 0, 0, 0.6);
             padding: 20px;
             border-radius: 10px;
         }
+
         .stars {
             display: flex;
             gap: 15px;
             margin-top: 20px;
         }
+
         .star {
             font-size: 40px;
             cursor: pointer;
             color: gold;
         }
+
+        /* Transition effect */
         .transition {
             background: url('hyperdrive-transition.gif') no-repeat center center;
             background-size: cover;
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
@@ -71,20 +81,23 @@
     </style>
 </head>
 <body>
+    <!-- Countdown Section -->
     <div id="countdown-section">
         <h1>Awaiting Coordinates...</h1>
         <h2 id="countdown">10</h2>
     </div>
 
+    <!-- Coordinates Received Section -->
     <div id="coordinates-section" class="hidden">
         <h1 class="blink">Coordinates Received!</h1>
         <p>Galaxy: Andromeda | Sector 7B | Vector 42</p>
     </div>
 
+    <!-- Transition Effect -->
     <div id="transition-section" class="hidden transition"></div>
 
+    <!-- Click the Stars Page -->
     <div id="decrypt-section" class="hidden">
-        <div class="background"></div>
         <div class="text-box">
             <h1>Click the stars to decrypt the message:</h1>
             <div class="stars">
@@ -113,11 +126,13 @@
                     setTimeout(() => {
                         countdownSection.classList.add("hidden");
                         coordinatesSection.classList.remove("hidden");
+
                         setTimeout(() => {
                             coordinatesSection.classList.add("fade-out");
                             setTimeout(() => {
                                 coordinatesSection.classList.add("hidden");
                                 transitionSection.classList.remove("hidden");
+
                                 setTimeout(() => {
                                     transitionSection.classList.add("hidden");
                                     decryptSection.classList.remove("hidden");
