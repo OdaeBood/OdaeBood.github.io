@@ -39,38 +39,6 @@
             background: url('space-planet.gif') no-repeat center center;
             background-size: cover;
         }
-
-        /* Incoming Transmission Box */
-        #transmission-box {
-            display: none;
-            position: absolute;
-            top: 30%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60%;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid white;
-            box-shadow: 0 0 10px white;
-            text-align: left;
-        }
-
-        /* Typing Effect */
-        .typing {
-            overflow: hidden;
-            white-space: nowrap;
-            border-right: 3px solid white;
-            display: inline-block;
-            animation: typing 3s steps(40, end) forwards, blink 0.7s infinite;
-        }
-
-        @keyframes typing {
-            from { width: 0; }
-            to { width: 100%; }
-        }
-        @keyframes blink {
-            50% { border-color: transparent; }
-        }
     </style>
 </head>
 <body>
@@ -80,11 +48,8 @@
     <!-- Game Canvas -->
     <canvas id="gameCanvas"></canvas>
 
-    <!-- Incoming Transmission Box -->
-    <div id="transmission-box">
-        <h2>Incoming Transmission...</h2>
-        <p id="transmission-text" class="typing"></p>
-    </div>
+    <!-- Let's Go Button -->
+    <button id="startButton" onclick="activateHyperdrive()">🚀 Let's go!</button>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -104,6 +69,10 @@
             function activateHyperdrive() {
                 console.log("Hyperdrive Activated!");
                 const hyperdrive = document.getElementById("hyperdrive-transition");
+                const startButton = document.getElementById("startButton");
+
+                // Hide button and show Hyperdrive
+                startButton.style.display = "none";
                 hyperdrive.style.display = "block";
 
                 // Wait for hyperdrive effect, then start game
@@ -169,36 +138,6 @@
                 setInterval(spawnRecord, 1000);
                 gameLoop();
             }
-
-            // Display Incoming Transmission
-            function showIncomingTransmission() {
-                const transmissionBox = document.getElementById("transmission-box");
-                const transmissionText = document.getElementById("transmission-text");
-
-                const message = "Hi Delah, this is the captain speaking. We are currently travelling at light speed towards our destination. Why don't we burn some time along the way? ";
-                
-                let index = 0;
-                transmissionText.innerHTML = "";
-                transmissionBox.style.display = "block";
-
-                function typeWriter() {
-                    if (index < message.length) {
-                        transmissionText.innerHTML += message.charAt(index);
-                        index++;
-                        setTimeout(typeWriter, 50); // Medium speed typing
-                    } else {
-                        setTimeout(() => {
-                            transmissionBox.style.display = "none";
-                            activateHyperdrive();
-                        }, 2000);
-                    }
-                }
-
-                typeWriter();
-            }
-
-            // Start Transmission After Cosmic Compatibility Test
-            setTimeout(showIncomingTransmission, 3000); // Assume this follows after the test
 
             window.activateHyperdrive = activateHyperdrive;
         });
