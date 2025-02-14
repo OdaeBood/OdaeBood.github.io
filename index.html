@@ -29,13 +29,8 @@
         }
 
         /* Game Canvas */
-        #gameCanvas {
+        canvas {
             display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
             background: url('space-planet.gif') no-repeat center center;
             background-size: cover;
         }
@@ -51,20 +46,9 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             let gameStarted = false;
-            const canvas = document.getElementById("gameCanvas");
-            const ctx = canvas.getContext("2d");
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-
-            let player = { x: canvas.width / 2 - 25, y: canvas.height - 80, width: 50, height: 50, speed: 10 };
-            let records = [];
-            let score = 0;
-
-            console.log("Game Initialized.");
-
-            // Handle "Let's go!" button click
+            
+            // Handle "Let's go!" button click (from previous section)
             function activateHyperdrive() {
-                console.log("Hyperdrive Activated!");
                 const hyperdrive = document.getElementById("hyperdrive-transition");
                 hyperdrive.style.display = "block";
 
@@ -77,34 +61,45 @@
 
             // Start the game
             function startGame() {
-                console.log("Starting Game...");
                 gameStarted = true;
+                const canvas = document.getElementById("gameCanvas");
                 canvas.style.display = "block";
+                const ctx = canvas.getContext("2d");
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
 
+                let player = { x: canvas.width / 2, y: canvas.height - 100, width: 50, height: 50, speed: 5 };
+                let records = [];
+                let score = 0;
+
+                // Create records (vinyls)
                 function spawnRecord() {
-                    let record = { x: Math.random() * (canvas.width - 30), y: 0, width: 30, height: 30, speed: 3 };
+                    let record = { x: Math.random() * canvas.width, y: 0, width: 30, height: 30, speed: 3 };
                     records.push(record);
                 }
 
+                // Move and draw player
                 function drawPlayer() {
                     ctx.fillStyle = "white";
                     ctx.fillRect(player.x, player.y, player.width, player.height);
                 }
 
+                // Move and draw records
                 function drawRecords() {
                     ctx.fillStyle = "gold";
                     records.forEach((record, index) => {
                         record.y += record.speed;
                         ctx.fillRect(record.x, record.y, record.width, record.height);
 
+                        // Check collision
                         if (record.y + record.height > player.y && record.x > player.x && record.x < player.x + player.width) {
                             score++;
-                            console.log("Collected Vinyl! Score: ", score);
                             records.splice(index, 1);
                         }
                     });
                 }
 
+                // Game loop
                 function gameLoop() {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     drawPlayer();
@@ -119,19 +114,23 @@
                     }
                 }
 
+                // End game
                 function endGame() {
                     alert("Congratulations! You've collected all 10 vinyl records!");
                 }
 
+                // Player movement
                 document.addEventListener("keydown", function (event) {
                     if (event.key === "ArrowLeft" && player.x > 0) player.x -= player.speed;
                     if (event.key === "ArrowRight" && player.x < canvas.width - player.width) player.x += player.speed;
                 });
 
+                // Spawn records and start game loop
                 setInterval(spawnRecord, 1000);
                 gameLoop();
             }
 
+            // Attach function to button click
             window.activateHyperdrive = activateHyperdrive;
         });
     </script>
