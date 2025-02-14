@@ -89,6 +89,14 @@
         </div>
     </div>
 
+    <div id="test-section" class="hidden">
+        <div class="text-box">
+            <h1>Cosmic Compatibility Test</h1>
+            <p id="question-text"></p>
+            <div id="choices"></div>
+        </div>
+    </div>
+
     <div id="role-section" class="hidden">
         <div class="text-box">
             <h1>Congratulations!</h1>
@@ -106,6 +114,7 @@
         const coordinatesSection = document.getElementById("coordinates-section");
         const transitionSection = document.getElementById("transition-section");
         const decryptSection = document.getElementById("decrypt-section");
+        const testSection = document.getElementById("test-section");
         const roleSection = document.getElementById("role-section");
         const gameCanvas = document.getElementById("gameCanvas");
 
@@ -150,13 +159,48 @@
                         decryptSection.classList.add("fade-out");
                         setTimeout(() => {
                             decryptSection.classList.add("hidden");
-                            roleSection.classList.remove("hidden");
-                            assignRole();
+                            testSection.classList.remove("hidden");
+                            startTest();
                         }, 2000);
                     }, 3000);
                 }
             }
             type();
+        }
+
+        function startTest() {
+            let questions = [
+                { q: "What planet would you visit first?", choices: ["Mars", "Saturn", "Jupiter"] },
+                { q: "What is your cosmic calling?", choices: ["Explorer", "Navigator", "Scientist"] },
+                { q: "What’s your ideal spaceship?", choices: ["Speed", "Luxury", "Technology"] }
+            ];
+            let currentQuestion = 0;
+            let questionText = document.getElementById("question-text");
+            let choicesDiv = document.getElementById("choices");
+
+            function showQuestion() {
+                if (currentQuestion < questions.length) {
+                    questionText.innerText = questions[currentQuestion].q;
+                    choicesDiv.innerHTML = "";
+                    questions[currentQuestion].choices.forEach(choice => {
+                        let button = document.createElement("button");
+                        button.innerText = choice;
+                        button.onclick = () => {
+                            currentQuestion++;
+                            showQuestion();
+                        };
+                        choicesDiv.appendChild(button);
+                    });
+                } else {
+                    testSection.classList.add("fade-out");
+                    setTimeout(() => {
+                        testSection.classList.add("hidden");
+                        roleSection.classList.remove("hidden");
+                        assignRole();
+                    }, 2000);
+                }
+            }
+            showQuestion();
         }
 
         function assignRole() {
@@ -178,53 +222,6 @@
                     startGame();
                 }, 4000);
             }, 2000);
-        }
-
-        function startGame() {
-            gameCanvas.style.display = "block";
-            const ctx = gameCanvas.getContext("2d");
-            let player = { x: 400, y: 400, size: 30 };
-            let records = [...Array(10)].map(() => ({
-                x: Math.random() * 760,
-                y: Math.random() * 460,
-                collected: false
-            }));
-            let score = 0;
-
-            function drawGame() {
-                ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-                ctx.fillStyle = "white";
-                ctx.fillRect(player.x, player.y, player.size, player.size);
-                ctx.fillStyle = "gold";
-                records.forEach(record => {
-                    if (!record.collected) {
-                        ctx.beginPath();
-                        ctx.arc(record.x, record.y, 10, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-                });
-                ctx.fillStyle = "white";
-                ctx.fillText("Records Collected: " + score, 10, 20);
-            }
-
-            function movePlayer(e) {
-                if (e.key === "ArrowLeft" && player.x > 0) player.x -= 20;
-                if (e.key === "ArrowRight" && player.x < 770) player.x += 20;
-                if (e.key === "ArrowUp" && player.y > 0) player.y -= 20;
-                if (e.key === "ArrowDown" && player.y < 470) player.y += 20;
-
-                records.forEach(record => {
-                    if (!record.collected && Math.abs(player.x - record.x) < 20 && Math.abs(player.y - record.y) < 20) {
-                        record.collected = true;
-                        score++;
-                    }
-                });
-
-                drawGame();
-            }
-
-            document.addEventListener("keydown", movePlayer);
-            drawGame();
         }
 
         startCountdown();
