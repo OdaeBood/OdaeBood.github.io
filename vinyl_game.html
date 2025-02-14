@@ -15,7 +15,7 @@
         canvas {
             display: block;
         }
-        /* Overlay for Welcome, Mission Complete & Ambrosia Delay Screens */
+        /* Overlay for Welcome & Game Over Screens */
         .overlay {
             position: absolute;
             top: 50%;
@@ -45,28 +45,6 @@
             margin-top: 15px;
             width: 100%;
         }
-        /* Black Screen for Mission Delay */
-        #ambrosiaScreen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: black;
-            display: none;
-            justify-content: center;
-            align-items: center;
-        }
-        .transmission-box {
-            background: rgba(0, 0, 0, 0.85);
-            padding: 20px;
-            border: 2px solid white;
-            color: white;
-            text-align: center;
-            font-size: 1.2rem;
-            max-width: 500px;
-            box-shadow: 0 0 10px white;
-        }
     </style>
 </head>
 <body>
@@ -82,20 +60,10 @@
         <button class="btn" onclick="startGame()">Start Game</button>
     </div>
 
-    <!-- Mission Complete Screen -->
-    <div id="missionCompleteScreen" class="overlay hidden">
-        <h2>🎉 Mission Complete!</h2>
-        <p>You collected all 10 vinyls!</p>
+    <!-- Game Over Overlay -->
+    <div id="gameOverScreen" class="overlay hidden">
+        <h2 id="gameOverMessage"></h2>
         <button class="btn" onclick="restartGame()">Play Again</button>
-        <button class="btn" onclick="continueToAmbrosia()">Continue to Ambrosia</button>
-    </div>
-
-    <!-- Ambrosia Delay Screen -->
-    <div id="ambrosiaScreen">
-        <div class="transmission-box">
-            <h2>Incoming Transmission...</h2>
-            <p id="delayMessage"></p>
-        </div>
     </div>
 
     <script>
@@ -174,6 +142,7 @@
         let items = [];
         let beams = [];
         let score = 0;
+        let gameOver = false;
         let gameRunning = false;
 
         function spawnItem() {
@@ -188,6 +157,8 @@
             player.draw();
             items.forEach(item => item.draw());
             beams.forEach(beam => beam.draw());
+
+            // Display Score
             ctx.fillStyle = "white";
             ctx.font = "20px Arial";
             ctx.fillText(`Vinyls Collected: ${score}/10`, 20, 30);
@@ -199,32 +170,89 @@
             items.forEach(item => item.update());
             beams.forEach(beam => beam.update());
 
+            beams = beams.filter(beam => beam.y > 0);
+
             items.forEach((item, index) => {
-                if (player.x < item.x + item.width && player.x + player.width > item.x &&
-                    player.y < item.y + item.height && player.y + player.height > item.y) {
+                if (
+                    player.x < item.x + item.width &&
+                    player.x + player.width > item.x &&
+                    player.y < item.y + item.height &&
+                    player.y + player.height > item.y
+                ) {
                     if (item.type === "vinyl") {
                         score++;
                         items.splice(index, 1);
                         if (score >= 10) {
-                            gameRunning = false;
-                            document.getElementById("missionCompleteScreen").classList.remove("hidden");
+                            gameOver = true;
+                            endGame("🎉 You collected all 10 vinyls! Mission Complete!");
                         }
+                    } else if (item.type === "grammy") {
+                        gameOver = true;
+                        endGame("💀 You got hit by a Grammy! Game Over.");
                     }
                 }
             });
+
+            beams.forEach((beam, beamIndex) => {
+                items.forEach((item, itemIndex) => {
+                    if (
+                        beam.x < item.x + item.width &&
+                        beam.x + beam.width > item.x &&
+                        beam.y < item.y + item.height &&
+                        beam.y + beam.height > item.y &&
+                        item.type === "grammy"
+                    ) {
+                        items.splice(itemIndex, 1);
+                        beams.splice(beamIndex, 1);
+                    }
+                });
+            });
+
+            items = items.filter(item => item.y < canvas.height);
         }
 
-        function startGame() {
-            document.getElementById("instructions").classList.add("hidden");
-            gameRunning = true;
-            setInterval(spawnItem, 600);
+        function loop() {
+            if (!gameRunning) return;
+            update();
+            draw();
             requestAnimationFrame(loop);
         }
 
-        function continueToAmbrosia() {
-            document.getElementById("missionCompleteScreen").classList.add("hidden");
-            document.getElementById("ambrosiaScreen").style.display = "flex";
-            document.getElementById("delayMessage").innerText = "Unfortunately, our crew was sabotaged and given wrong coordinates that delay our mission. Stand by, awaiting new coordinates.";
+        function keyDown(e) {
+            if (e.key === "ArrowRight") player.dx = player.speed;
+            if (e.key === "ArrowLeft") player.dx = -player.speed;
+            if (e.code === "Space" && gameRunning) {
+                beams.push(new Beam(player.x + player.width / 2 - 5, player.y));
+            }
+        }
+
+        function keyUp(e) {
+            if (e.key === "ArrowRight" || e.key === "ArrowLeft") player.dx = 0;
+        }
+
+        window.addEventListener("keydown", keyDown);
+        window.addEventListener("keyup", keyUp);
+
+        function startGame() {
+            document.getElementById("instructions").classList.add("hidden");
+            items = [];
+            beams = [];
+            score = 0;
+            gameOver = false;
+            gameRunning = true;
+            setInterval(spawnItem, 600);
+            loop();
+        }
+
+        function endGame(message) {
+            gameRunning = false;
+            document.getElementById("gameOverMessage").innerText = message;
+            document.getElementById("gameOverScreen").classList.remove("hidden");
+        }
+
+        function restartGame() {
+            document.getElementById("gameOverScreen").classList.add("hidden");
+            startGame();
         }
     </script>
 </body>
