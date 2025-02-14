@@ -44,6 +44,20 @@
             font-size: 1.2rem;
             position: relative;
         }
+        .typing { white-space: pre-wrap; overflow: hidden; display: inline-block; }
+        .options { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .option {
+            padding: 10px;
+            border: 2px solid white;
+            background: none;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .option:hover { background: white; color: black; }
+
+        /* Hyperdrive Transition */
         .transition {
             background: url('hyperdrive-transition.gif') no-repeat center center;
             background-size: cover;
@@ -54,10 +68,17 @@
             height: 100vh;
             z-index: 10;
         }
+
+        /* Game Canvas */
         canvas {
+            background: url('game-bg.gif') no-repeat center center;
+            background-size: cover;
+            display: block;
             position: absolute;
             top: 0;
             left: 0;
+            width: 100vw;
+            height: 100vh;
         }
     </style>
 </head>
@@ -75,8 +96,21 @@
     <div id="transition-section" class="hidden transition"></div>
     <div class="background hidden" id="gif-background"></div>
 
+    <div id="transmission-section" class="text-box hidden">
+        <h2>Incoming Transmission...</h2>
+        <p id="typing-text" class="typing"></p>
+    </div>
+
+    <div id="quiz-section" class="text-box hidden">
+        <h2>Cosmic Compatibility Test</h2>
+        <p id="quiz-question"></p>
+        <div class="options" id="options-container"></div>
+    </div>
+
     <div id="role-section" class="text-box hidden">
         <h2>Congratulations!</h2>
+        <p id="role-text"></p>
+        <p id="nickname-text"></p>
         <p>We've set course for <strong>Planet Ambrosia</strong>. A world of celestial melodies and harmonic wonders.</p>
         <p>Are you ready to embark on the next phase of your journey?</p>
         <button onclick="activateHyperdrive()" class="option">🚀 Let's go!</button>
@@ -90,11 +124,16 @@
         const countdownSection = document.getElementById("countdown-section");
         const coordinatesSection = document.getElementById("coordinates-section");
         const transitionSection = document.getElementById("transition-section");
+        const transmissionSection = document.getElementById("transmission-section");
+        const quizSection = document.getElementById("quiz-section");
         const roleSection = document.getElementById("role-section");
+        const quizQuestion = document.getElementById("quiz-question");
+        const optionsContainer = document.getElementById("options-container");
+        const roleText = document.getElementById("role-text");
+        const nicknameText = document.getElementById("nickname-text");
+        const gifBackground = document.getElementById("gif-background");
         const gameCanvas = document.getElementById("gameCanvas");
         const ctx = gameCanvas.getContext("2d");
-        gameCanvas.width = 800;
-        gameCanvas.height = 400;
 
         function startCountdown() {
             const interval = setInterval(() => {
@@ -113,7 +152,9 @@
                                 transitionSection.classList.remove("hidden");
                                 setTimeout(() => {
                                     transitionSection.classList.add("hidden");
-                                    roleSection.classList.remove("hidden");
+                                    gifBackground.classList.remove("hidden");
+                                    transmissionSection.classList.remove("hidden");
+                                    typeMessage();
                                 }, 4000);
                             }, 2000);
                         }, 4000);
@@ -133,76 +174,56 @@
 
         function startGame() {
             gameCanvas.classList.remove("hidden");
+            gameCanvas.width = window.innerWidth;
+            gameCanvas.height = window.innerHeight;
+            gameLoop();
+        }
 
-            const player = { x: 50, y: 300, width: 40, height: 40, color: "white", speed: 5 };
-            let records = [];
-            let collected = 0;
+        let player = { x: 50, y: 300, width: 40, height: 40, speed: 5 };
+        let vinylRecords = [];
+        let score = 0;
 
-            function generateRecords() {
-                for (let i = 0; i < 10; i++) {
-                    records.push({
-                        x: Math.random() * (gameCanvas.width - 20),
-                        y: Math.random() * (gameCanvas.height - 50),
-                        size: 20,
-                        collected: false
-                    });
-                }
-            }
+        function spawnVinyl() {
+            const vinyl = { x: Math.random() * (gameCanvas.width - 30), y: Math.random() * (gameCanvas.height - 30), size: 30 };
+            vinylRecords.push(vinyl);
+        }
 
-            function drawPlayer() {
-                ctx.fillStyle = player.color;
-                ctx.fillRect(player.x, player.y, player.width, player.height);
-            }
+        for (let i = 0; i < 10; i++) { spawnVinyl(); }
 
-            function drawRecords() {
-                ctx.fillStyle = "gold";
-                records.forEach((record) => {
-                    if (!record.collected) {
-                        ctx.beginPath();
-                        ctx.arc(record.x, record.y, record.size, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-                });
-            }
+        function draw() {
+            ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+            ctx.fillStyle = "red";
+            ctx.fillRect(player.x, player.y, player.width, player.height);
 
-            function checkCollisions() {
-                records.forEach((record) => {
-                    if (
-                        !record.collected &&
-                        player.x < record.x + record.size &&
-                        player.x + player.width > record.x &&
-                        player.y < record.y + record.size &&
-                        player.y + player.height > record.y
-                    ) {
-                        record.collected = true;
-                        collected++;
-                    }
-                });
-            }
-
-            function update() {
-                ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-                drawPlayer();
-                drawRecords();
-                checkCollisions();
-
-                if (collected >= 10) {
-                    ctx.fillStyle = "white";
-                    ctx.font = "30px Arial";
-                    ctx.fillText("Mission Accomplished!", gameCanvas.width / 2 - 100, gameCanvas.height / 2);
-                    return;
-                }
-
-                requestAnimationFrame(update);
-            }
-
-            document.addEventListener("keydown", (e) => {
-                if (e.code === "ArrowLeft") player.x -= player.speed;
-                if (e.code === "ArrowRight") player.x += player.speed;
+            ctx.fillStyle = "yellow";
+            vinylRecords.forEach((vinyl, index) => {
+                ctx.beginPath();
+                ctx.arc(vinyl.x, vinyl.y, vinyl.size / 2, 0, Math.PI * 2);
+                ctx.fill();
             });
 
-            generateRecords();
+            ctx.fillStyle = "white";
+            ctx.fillText("Score: " + score, 20, 20);
+        }
+
+        function update() {
+            vinylRecords.forEach((vinyl, index) => {
+                if (Math.hypot(player.x - vinyl.x, player.y - vinyl.y) < 30) {
+                    vinylRecords.splice(index, 1);
+                    score++;
+                }
+            });
+
+            if (score === 10) {
+                alert("You collected all the records! Mission complete!");
+                location.reload();
+            }
+        }
+
+        function gameLoop() {
+            draw();
             update();
+            requestAnimationFrame(gameLoop);
         }
 
         startCountdown();
