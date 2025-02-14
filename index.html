@@ -17,21 +17,12 @@
             height: 100vh;
             overflow: hidden;
         }
-        .hidden {
-            display: none;
-        }
-        .fade-out {
-            opacity: 0;
-            transition: opacity 2s ease-in-out;
-        }
-        .blink {
-            animation: blink-animation 1s steps(2, start) infinite;
-        }
-        @keyframes blink-animation {
-            to {
-                visibility: hidden;
-            }
-        }
+        .hidden { display: none; }
+        .fade-out { opacity: 0; transition: opacity 2s ease-in-out; }
+        .blink { animation: blink-animation 1s steps(2, start) infinite; }
+        @keyframes blink-animation { to { visibility: hidden; } }
+        
+        /* Background GIF */
         .background {
             position: fixed;
             top: 0;
@@ -42,6 +33,7 @@
             background-size: cover;
             z-index: -1;
         }
+        
         .text-box {
             background: rgba(0, 0, 0, 0.8);
             padding: 20px;
@@ -52,17 +44,8 @@
             font-size: 1.2rem;
             position: relative;
         }
-        .typing {
-            white-space: pre-wrap;
-            overflow: hidden;
-            display: inline-block;
-        }
-        .options {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+        .typing { white-space: pre-wrap; overflow: hidden; display: inline-block; }
+        .options { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
         .option {
             padding: 10px;
             border: 2px solid white;
@@ -72,10 +55,9 @@
             cursor: pointer;
             transition: 0.3s;
         }
-        .option:hover {
-            background: white;
-            color: black;
-        }
+        .option:hover { background: white; color: black; }
+        
+        /* Hyperdrive Transition */
         .transition {
             background: url('hyperdrive-transition.gif') no-repeat center center;
             background-size: cover;
@@ -86,6 +68,8 @@
             height: 100vh;
             z-index: 10;
         }
+        
+        /* Game Canvas */
         .game-container {
             position: absolute;
             top: 0;
@@ -95,10 +79,7 @@
             background: url('game-background.gif') no-repeat center center;
             background-size: cover;
         }
-        canvas {
-            display: block;
-            margin: auto;
-        }
+        canvas { display: block; margin: auto; }
     </style>
 </head>
 <body>
@@ -113,7 +94,6 @@
     </div>
 
     <div id="transition-section" class="hidden transition"></div>
-
     <div class="background hidden" id="gif-background"></div>
 
     <div id="transmission-section" class="text-box hidden">
@@ -138,7 +118,6 @@
 
     <script>
         let countdown = 10;
-        let currentIndex = 0;
         const countdownElement = document.getElementById("countdown");
         const countdownSection = document.getElementById("countdown-section");
         const coordinatesSection = document.getElementById("coordinates-section");
@@ -150,6 +129,7 @@
         const optionsContainer = document.getElementById("options-container");
         const roleText = document.getElementById("role-text");
         const nicknameText = document.getElementById("nickname-text");
+        const gifBackground = document.getElementById("gif-background");
 
         function startCountdown() {
             const interval = setInterval(() => {
@@ -168,6 +148,7 @@
                                 transitionSection.classList.remove("hidden");
                                 setTimeout(() => {
                                     transitionSection.classList.add("hidden");
+                                    gifBackground.classList.remove("hidden");
                                     transmissionSection.classList.remove("hidden");
                                     typeMessage();
                                 }, 4000);
@@ -180,6 +161,7 @@
 
         const message = "Hi Delah, this is the captain speaking. We are currently travelling at light speed towards our destination. Why don't we burn some time along the way?";
         const typingText = document.getElementById("typing-text");
+        let currentIndex = 0;
 
         function typeMessage() {
             if (currentIndex < message.length) {
@@ -189,34 +171,6 @@
             } else {
                 setTimeout(startQuiz, 2000);
             }
-        }
-
-        function startQuiz() {
-            transmissionSection.classList.add("hidden");
-            quizSection.classList.remove("hidden");
-            showQuestion();
-        }
-
-        const quizData = [
-            { question: "Which celestial body fascinates you the most?", options: ["A Black Hole", "A Distant Galaxy", "The Moon"], answers: ["Navigator", "Engineer", "Communications Officer"] }
-        ];
-
-        function showQuestion() {
-            const data = quizData[0];
-            quizQuestion.innerText = data.question;
-            optionsContainer.innerHTML = "";
-            data.options.forEach((option, i) => {
-                const btn = document.createElement("button");
-                btn.classList.add("option");
-                btn.innerText = option;
-                btn.onclick = () => {
-                    roleText.innerText = `Your role on the ship is: ${data.answers[i]}!`;
-                    nicknameText.innerText = `The crew has given you the nickname: "Ms. Calypso" for your raw talent and unwavering passion for music.`;
-                    quizSection.classList.add("hidden");
-                    roleSection.classList.remove("hidden");
-                };
-                optionsContainer.appendChild(btn);
-            });
         }
 
         function activateHyperdrive() {
@@ -229,7 +183,9 @@
         }
 
         function startGame() {
-            window.location.href = "game.html";
+            document.body.innerHTML = `<div class="game-container">
+                <canvas id="gameCanvas" width="800" height="600"></canvas>
+            </div>`;
         }
 
         startCountdown();
