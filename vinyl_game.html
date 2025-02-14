@@ -10,11 +10,12 @@
             overflow: hidden;
             background: url('space-background.gif') no-repeat center center fixed;
             background-size: cover;
+            position: relative;
         }
         canvas {
             display: block;
         }
-        /* Overlay for Welcome, Game Over, and Ambrosia Message Screens */
+        /* Overlay for Welcome, Game Over, and Ambrosia Screens */
         .overlay {
             position: absolute;
             top: 50%;
@@ -44,7 +45,7 @@
             margin-top: 15px;
             width: 100%;
         }
-        /* Ambrosia Message */
+        /* Ambrosia Delay Screen */
         .black-screen {
             position: absolute;
             top: 0;
@@ -65,7 +66,7 @@
 <body>
     <canvas id="gameCanvas"></canvas>
 
-    <!-- Instruction Popup (Overlay on Game Screen) -->
+    <!-- Instruction Popup -->
     <div id="instructions" class="overlay">
         <h2>Welcome to the Vinyl Collection Quest! 🎶</h2>
         <p>🎯 <strong>Collect 10 vinyl records</strong> to complete your mission.</p>
@@ -79,10 +80,10 @@
     <div id="gameOverScreen" class="overlay hidden">
         <h2 id="gameOverMessage"></h2>
         <button class="btn" onclick="restartGame()">Play Again</button>
-        <button class="btn" onclick="continueToAmbrosia()">Continue to Ambrosia</button>
+        <button class="btn hidden" id="continueBtn" onclick="continueToAmbrosia()">Continue to Ambrosia</button>
     </div>
 
-    <!-- Ambrosia Delay Message -->
+    <!-- Ambrosia Delay Screen -->
     <div id="ambrosiaScreen" class="black-screen hidden">
         <div class="overlay">
             <h2>🚀 Awaiting New Coordinates...</h2>
@@ -167,7 +168,6 @@
         let beams = [];
         let score = 0;
         let gameRunning = false;
-        let gameLoop;
 
         function spawnItem() {
             if (!gameRunning) return;
@@ -207,13 +207,12 @@
                         items.splice(index, 1);
                         if (score >= 10) {
                             gameRunning = false;
-                            clearInterval(gameLoop);
                             document.getElementById("gameOverMessage").innerText = "🎉 You collected all 10 vinyls! Mission Complete!";
                             document.getElementById("gameOverScreen").classList.remove("hidden");
+                            document.getElementById("continueBtn").classList.remove("hidden");
                         }
                     } else if (item.type === "grammy") {
                         gameRunning = false;
-                        clearInterval(gameLoop);
                         document.getElementById("gameOverMessage").innerText = "💀 You got hit by a Grammy! Game Over.";
                         document.getElementById("gameOverScreen").classList.remove("hidden");
                     }
@@ -227,11 +226,8 @@
             beams = [];
             score = 0;
             gameRunning = true;
-            gameLoop = setInterval(() => {
-                spawnItem();
-                update();
-                draw();
-            }, 30);
+            setInterval(spawnItem, 600);
+            loop();
         }
 
         function continueToAmbrosia() {
