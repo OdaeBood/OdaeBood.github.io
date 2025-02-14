@@ -5,135 +5,96 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Decrypting Coordinates</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background-color: black;
+            background: url('psychedelic-background.gif') no-repeat center center fixed;
+            background-size: cover;
+            text-align: center;
             color: white;
             font-family: Arial, sans-serif;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
         }
-        .hidden {
-            display: none;
-        }
-        .fade-out {
-            opacity: 0;
-            transition: opacity 2s ease-in-out;
-        }
-        .blink {
-            animation: blink-animation 1s steps(2, start) infinite;
-        }
-        @keyframes blink-animation {
-            to {
-                visibility: hidden;
-            }
-        }
-        .background {
-            background-image: url('psychedelic-background.jpg');
-            background-size: cover;
-            background-position: center;
+
+        .container {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: -1;
-        }
-        .text-box {
-            background: rgba(0, 0, 0, 0.6);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.5);
             padding: 20px;
             border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
         }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
         .stars {
             display: flex;
-            gap: 15px;
-            margin-top: 20px;
+            justify-content: center;
+            gap: 20px;
         }
+
         .star {
-            font-size: 40px;
+            width: 50px;
+            height: 50px;
             cursor: pointer;
-            color: gold;
         }
-        .transition {
-            background: url('hyperdrive-transition.gif') no-repeat center center;
-            background-size: cover;
-            position: absolute;
+
+        #transition-screen {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
+            background: black url('hyperspace-transition.gif') no-repeat center center;
+            background-size: cover;
+            display: none;
             z-index: 10;
+        }
+
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div id="countdown-section">
-        <h1>Awaiting Coordinates...</h1>
-        <h2 id="countdown">10</h2>
+
+<div id="transition-screen"></div>
+
+<div class="container" id="decrypt-message">
+    <h1>Click the stars to decrypt the message:</h1>
+    <div class="stars">
+        <img src="star.png" class="star" onclick="revealMessage(1)">
+        <img src="star.png" class="star" onclick="revealMessage(2)">
+        <img src="star.png" class="star" onclick="revealMessage(3)">
     </div>
+    <p id="message" class="hidden">Decryption in progress...</p>
+</div>
 
-    <div id="coordinates-section" class="hidden">
-        <h1 class="blink">Coordinates Received!</h1>
-        <p>Galaxy: Andromeda | Sector 7B | Vector 42</p>
-    </div>
+<script>
+    let foundStars = 0;
 
-    <div id="transition-section" class="hidden transition"></div>
-
-    <div id="decrypt-section" class="hidden">
-        <div class="background"></div>
-        <div class="text-box">
-            <h1>Click the stars to decrypt the message:</h1>
-            <div class="stars">
-                <span class="star" onclick="decryptStar(1)">&#9733;</span>
-                <span class="star" onclick="decryptStar(2)">&#9733;</span>
-                <span class="star" onclick="decryptStar(3)">&#9733;</span>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let countdown = 10;
-        const countdownElement = document.getElementById("countdown");
-        const countdownSection = document.getElementById("countdown-section");
-        const coordinatesSection = document.getElementById("coordinates-section");
-        const transitionSection = document.getElementById("transition-section");
-        const decryptSection = document.getElementById("decrypt-section");
-
-        function startCountdown() {
-            const interval = setInterval(() => {
-                countdown--;
-                countdownElement.innerText = countdown;
-                if (countdown <= 0) {
-                    clearInterval(interval);
-                    countdownSection.classList.add("fade-out");
-                    setTimeout(() => {
-                        countdownSection.classList.add("hidden");
-                        coordinatesSection.classList.remove("hidden");
-                        setTimeout(() => {
-                            coordinatesSection.classList.add("fade-out");
-                            setTimeout(() => {
-                                coordinatesSection.classList.add("hidden");
-                                transitionSection.classList.remove("hidden");
-                                setTimeout(() => {
-                                    transitionSection.classList.add("hidden");
-                                    decryptSection.classList.remove("hidden");
-                                }, 4000); // Show transition GIF for 4 seconds
-                            }, 2000);
-                        }, 4000);
-                    }, 2000);
-                }
+    function revealMessage(star) {
+        foundStars++;
+        if (foundStars === 3) {
+            document.getElementById("message").classList.remove("hidden");
+            setTimeout(() => {
+                document.getElementById("transition-screen").style.display = "block";
+                setTimeout(() => {
+                    window.location.href = "nextpage.html"; // Change to next page URL
+                }, 3000);
             }, 1000);
         }
-        
-        function decryptStar(index) {
-            document.querySelectorAll(".star")[index - 1].style.color = "white";
-        }
+    }
+</script>
 
-        startCountdown();
-    </script>
 </body>
 </html>
