@@ -32,15 +32,15 @@
                 visibility: hidden;
             }
         }
+        /* Fix background image handling for GIF */
         .background {
-            background-image: url('psychedelic-background.gif');
-            background-size: cover;
-            background-position: center;
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
+            background: url('psychedelic-bg.gif') no-repeat center center fixed;
+            background-size: cover;
             z-index: -1;
         }
         .text-box {
