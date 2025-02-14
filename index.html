@@ -32,7 +32,6 @@
                 visibility: hidden;
             }
         }
-        /* Background GIF */
         .background {
             position: fixed;
             top: 0;
@@ -58,7 +57,6 @@
             cursor: pointer;
             color: gold;
         }
-        /* Hyperdrive transition */
         .transition {
             background: url('hyperdrive-transition.gif') no-repeat center center;
             background-size: cover;
@@ -69,16 +67,21 @@
             height: 100vh;
             z-index: 10;
         }
-        /* Game Styles */
-        #gameCanvas {
-            display: none;
-            background: url('space-game-bg.gif') no-repeat center center fixed;
-            background-size: cover;
-            width: 100vw;
-            height: 100vh;
+        /* Game Styling */
+        .game-container {
             position: absolute;
             top: 0;
             left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: url('game-background.gif') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        canvas {
+            background: rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
@@ -100,21 +103,24 @@
         <div class="text-box">
             <h1>Incoming Transmission</h1>
             <p id="transmission-text"></p>
+            <button onclick="startCompatibilityTest()">Begin Test</button>
         </div>
     </div>
 
-    <div id="role-assignment" class="hidden">
+    <div id="role-assignment-section" class="hidden">
         <div class="text-box">
             <h1>Congratulations!</h1>
             <p>Your role on the ship is: <strong>Navigator!</strong></p>
             <p>The crew has given you the nickname: <strong>"Ms. Calypso"</strong> for your raw talent and unwavering passion for music.</p>
-            <p>We've set course for <strong>Planet Ambrosia.</strong> A world of celestial melodies and harmonic wonders.</p>
+            <p>We've set course for <strong>Planet Ambrosia</strong>. A world of celestial melodies and harmonic wonders.</p>
             <p>Are you ready to embark on the next phase of your journey?</p>
-            <button onclick="startHyperdrive()">🚀 Let's go!</button>
+            <button onclick="activateHyperdrive()">🚀 Let's go!</button>
         </div>
     </div>
 
-    <canvas id="gameCanvas"></canvas>
+    <div id="game-section" class="hidden game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+    </div>
 
     <script>
         let countdown = 10;
@@ -123,8 +129,10 @@
         const coordinatesSection = document.getElementById("coordinates-section");
         const transitionSection = document.getElementById("transition-section");
         const decryptSection = document.getElementById("decrypt-section");
-        const roleAssignment = document.getElementById("role-assignment");
+        const roleAssignmentSection = document.getElementById("role-assignment-section");
+        const gameSection = document.getElementById("game-section");
         const gameCanvas = document.getElementById("gameCanvas");
+        const ctx = gameCanvas.getContext("2d");
 
         function startCountdown() {
             const interval = setInterval(() => {
@@ -144,8 +152,8 @@
                                 setTimeout(() => {
                                     transitionSection.classList.add("hidden");
                                     decryptSection.classList.remove("hidden");
-                                    typeText();
-                                }, 4000); // Show transition GIF for 4 seconds
+                                    typeTransmission();
+                                }, 4000);
                             }, 2000);
                         }, 4000);
                     }, 2000);
@@ -153,72 +161,85 @@
             }, 1000);
         }
 
-        function typeText() {
-            const text = "Hi Delah, this is the captain speaking. We are currently travelling at light speed towards our destination. Why don't we burn some time along the way.";
-            let i = 0;
+        function typeTransmission() {
+            const text = "Hi Delah, this is the captain speaking. We are currently travelling at light speed towards our destination. Why don't we burn some time along the way?";
+            let index = 0;
+            const transmissionText = document.getElementById("transmission-text");
             const interval = setInterval(() => {
-                if (i < text.length) {
-                    document.getElementById("transmission-text").innerHTML += text[i];
-                    i++;
-                } else {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        decryptSection.classList.add("hidden");
-                        roleAssignment.classList.remove("hidden");
-                    }, 1000);
-                }
+                transmissionText.innerText += text[index];
+                index++;
+                if (index >= text.length) clearInterval(interval);
             }, 50);
         }
 
-        function startHyperdrive() {
-            roleAssignment.classList.add("hidden");
+        function activateHyperdrive() {
+            roleAssignmentSection.classList.add("hidden");
             transitionSection.classList.remove("hidden");
+
             setTimeout(() => {
                 transitionSection.classList.add("hidden");
+                gameSection.classList.remove("hidden");
                 startGame();
-            }, 4000); // Hyperdrive transition before game starts
+            }, 4000);
         }
 
         function startGame() {
-            gameCanvas.style.display = "block";
-            const ctx = gameCanvas.getContext("2d");
-            gameCanvas.width = window.innerWidth;
-            gameCanvas.height = window.innerHeight;
+            let player = { x: 400, y: 500, width: 50, height: 50, speed: 5 };
+            let records = [];
+            let score = 0;
 
-            let vinyls = [];
-            let player = { x: 50, y: gameCanvas.height / 2, size: 30, score: 0 };
-
-            function spawnVinyl() {
-                vinyls.push({ x: gameCanvas.width, y: Math.random() * gameCanvas.height, size: 20 });
+            function createRecords() {
+                for (let i = 0; i < 10; i++) {
+                    records.push({
+                        x: Math.random() * 750,
+                        y: Math.random() * 550,
+                        width: 20,
+                        height: 20
+                    });
+                }
             }
 
-            function drawGame() {
+            function draw() {
                 ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-                ctx.fillStyle = "white";
-                ctx.fillRect(player.x, player.y, player.size, player.size);
-                vinyls.forEach((vinyl, index) => {
-                    ctx.fillStyle = "gold";
-                    ctx.beginPath();
-                    ctx.arc(vinyl.x, vinyl.y, vinyl.size, 0, Math.PI * 2);
-                    ctx.fill();
-                    vinyl.x -= 3;
-                    if (vinyl.x < 0) vinyls.splice(index, 1);
-                    if (Math.abs(player.x - vinyl.x) < 20 && Math.abs(player.y - vinyl.y) < 20) {
-                        player.score++;
-                        vinyls.splice(index, 1);
-                        if (player.score >= 10) alert("Mission Complete!");
-                    }
+                ctx.fillStyle = "blue";
+                ctx.fillRect(player.x, player.y, player.width, player.height);
+
+                ctx.fillStyle = "yellow";
+                records.forEach(record => {
+                    ctx.fillRect(record.x, record.y, record.width, record.height);
                 });
-                requestAnimationFrame(drawGame);
+
+                ctx.fillStyle = "white";
+                ctx.fillText("Score: " + score, 10, 20);
             }
 
-            window.addEventListener("keydown", (e) => {
-                if (e.key === "ArrowUp") player.y -= 20;
-                if (e.key === "ArrowDown") player.y += 20;
-            });
+            function update() {
+                document.addEventListener("keydown", function (event) {
+                    if (event.key === "ArrowLeft") player.x -= player.speed;
+                    if (event.key === "ArrowRight") player.x += player.speed;
+                    if (event.key === "ArrowUp") player.y -= player.speed;
+                    if (event.key === "ArrowDown") player.y += player.speed;
+                });
 
-            setInterval(spawnVinyl, 2000);
-            drawGame();
+                records = records.filter(record => {
+                    if (player.x < record.x + record.width &&
+                        player.x + player.width > record.x &&
+                        player.y < record.y + record.height &&
+                        player.y + player.height > record.y) {
+                        score++;
+                        return false;
+                    }
+                    return true;
+                });
+
+                if (score >= 10) alert("Mission complete!");
+            }
+
+            createRecords();
+            setInterval(() => {
+                update();
+                draw();
+            }, 1000 / 30);
         }
 
         startCountdown();
