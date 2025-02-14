@@ -135,6 +135,7 @@
         let beams = [];
         let score = 0;
         let gameOver = false;
+        let gameRunning = false; // Ensure the game restarts correctly
 
         function spawnItem() {
             let type = Math.random() < 0.8 ? "grammy" : "vinyl"; // 80% Grammys, 20% Vinyls
@@ -175,11 +176,13 @@
                         score++;
                         items.splice(index, 1);
                         if (score >= 10) {
-                            alert("🎉 You collected all the vinyls! Mission Complete!");
+                            gameOver = true;
+                            setTimeout(() => alert("🎉 You collected all the vinyls! Mission Complete!"), 100);
                             restartGame();
                         }
                     } else if (item.type === "grammy") {
-                        alert("💀 You got hit by a Grammy! Game Over.");
+                        gameOver = true;
+                        setTimeout(() => alert("💀 You got hit by a Grammy! Game Over."), 100);
                         restartGame();
                     }
                 }
@@ -206,6 +209,7 @@
         }
 
         function loop() {
+            if (!gameRunning) return;
             update();
             draw();
             requestAnimationFrame(loop);
@@ -214,7 +218,7 @@
         function keyDown(e) {
             if (e.key === "ArrowRight") player.dx = player.speed;
             if (e.key === "ArrowLeft") player.dx = -player.speed;
-            if (e.key === " ") {
+            if (e.key === " " && gameRunning) {
                 beams.push(new Beam(player.x + player.width / 2 - 5, player.y)); // Shoot beam
             }
         }
@@ -227,17 +231,21 @@
         window.addEventListener("keyup", keyUp);
 
         function startGame() {
-            document.getElementById("instructions").style.display = "none"; // Remove popup
-            items = []; // Reset items
-            beams = []; // Reset beams
-            score = 0; // Reset score
+            document.getElementById("instructions").style.display = "none";
+            items = [];
+            beams = [];
+            score = 0;
             gameOver = false;
-            setInterval(spawnItem, 600); // Spawn items every 0.6 seconds
+            gameRunning = true;
+            setInterval(spawnItem, 600);
             loop();
         }
 
         function restartGame() {
-            document.getElementById("instructions").style.display = "flex"; // Show popup again
+            gameRunning = false;
+            setTimeout(() => {
+                document.getElementById("instructions").style.display = "flex";
+            }, 1000);
         }
     </script>
 </body>
