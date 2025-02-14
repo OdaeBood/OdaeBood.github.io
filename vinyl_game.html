@@ -10,7 +10,6 @@
             overflow: hidden;
             background: url('space-background.gif') no-repeat center center fixed;
             background-size: cover;
-            position: relative;
         }
         canvas {
             display: block;
@@ -221,13 +220,6 @@
             items = items.filter(item => item.y < canvas.height);
         }
 
-        function loop() {
-            if (!gameRunning) return;
-            update();
-            draw();
-            requestAnimationFrame(loop);
-        }
-
         function startGame() {
             document.getElementById("instructions").classList.add("hidden");
             items = [];
@@ -235,7 +227,7 @@
             score = 0;
             gameRunning = true;
             setInterval(spawnItem, 600);
-            loop();
+            requestAnimationFrame(update);
         }
 
         function continueToAmbrosia() {
