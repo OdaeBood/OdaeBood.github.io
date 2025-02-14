@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Incoming Transmission</title>
+    <title>Decrypting Coordinates</title>
     <style>
         body {
             background-color: black;
@@ -19,6 +19,18 @@
         }
         .hidden {
             display: none;
+        }
+        .fade-out {
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+        }
+        .blink {
+            animation: blink-animation 1s steps(2, start) infinite;
+        }
+        @keyframes blink-animation {
+            to {
+                visibility: hidden;
+            }
         }
         .background {
             position: fixed;
@@ -64,49 +76,101 @@
             background: white;
             color: black;
         }
+        .transition {
+            background: url('hyperdrive-transition.gif') no-repeat center center;
+            background-size: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+        }
     </style>
 </head>
 <body>
-    <div class="background"></div>
+    <div id="countdown-section">
+        <h1>Awaiting Coordinates...</h1>
+        <h2 id="countdown">10</h2>
+    </div>
 
-    <!-- Incoming Transmission Section -->
+    <div id="coordinates-section" class="hidden">
+        <h1 class="blink">Coordinates Received!</h1>
+        <p>Galaxy: Andromeda | Sector 7B | Vector 42</p>
+    </div>
+
+    <div id="transition-section" class="hidden transition"></div>
+
+    <!-- INCOMING TRANSMISSION -->
     <div id="transmission-section" class="text-box hidden">
         <h2>Incoming Transmission...</h2>
         <p id="typing-text" class="typing"></p>
     </div>
 
-    <!-- Quiz Section -->
+    <!-- COSMIC COMPATIBILITY TEST -->
     <div id="quiz-section" class="text-box hidden">
         <h2>Cosmic Compatibility Test</h2>
         <p id="quiz-question"></p>
         <div class="options" id="options-container"></div>
     </div>
 
-    <!-- Role Assignment Section -->
+    <!-- ROLE ASSIGNMENT -->
     <div id="role-section" class="text-box hidden">
         <h2>Congratulations!</h2>
         <p id="role-text"></p>
     </div>
 
     <script>
-        const message = "Hi Delah, this is the captain speaking. We are currently travelling at light speed towards our destination. Why don't we burn some time along the way?";
-        const typingText = document.getElementById("typing-text");
+        let countdown = 10;
+        const countdownElement = document.getElementById("countdown");
+        const countdownSection = document.getElementById("countdown-section");
+        const coordinatesSection = document.getElementById("coordinates-section");
+        const transitionSection = document.getElementById("transition-section");
         const transmissionSection = document.getElementById("transmission-section");
         const quizSection = document.getElementById("quiz-section");
         const roleSection = document.getElementById("role-section");
+        const typingText = document.getElementById("typing-text");
         const quizQuestion = document.getElementById("quiz-question");
         const optionsContainer = document.getElementById("options-container");
         const roleText = document.getElementById("role-text");
 
+        function startCountdown() {
+            const interval = setInterval(() => {
+                countdown--;
+                countdownElement.innerText = countdown;
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    countdownSection.classList.add("fade-out");
+                    setTimeout(() => {
+                        countdownSection.classList.add("hidden");
+                        coordinatesSection.classList.remove("hidden");
+                        setTimeout(() => {
+                            coordinatesSection.classList.add("fade-out");
+                            setTimeout(() => {
+                                coordinatesSection.classList.add("hidden");
+                                transitionSection.classList.remove("hidden");
+                                setTimeout(() => {
+                                    transitionSection.classList.add("hidden");
+                                    transmissionSection.classList.remove("hidden");
+                                    typeMessage();
+                                }, 4000); // Hyperdrive transition duration
+                            }, 2000);
+                        }, 4000);
+                    }, 2000);
+                }
+            }, 1000);
+        }
+
+        const message = "Hi Delah, this is the captain speaking. We are currently travelling at light speed towards our destination. Why don't we burn some time along the way?";
         let currentIndex = 0;
 
         function typeMessage() {
             if (currentIndex < message.length) {
                 typingText.innerHTML += message[currentIndex];
                 currentIndex++;
-                setTimeout(typeMessage, 50); // Adjust typing speed
+                setTimeout(typeMessage, 50);
             } else {
-                setTimeout(startQuiz, 2000); // Start quiz after message
+                setTimeout(startQuiz, 2000);
             }
         }
 
@@ -163,8 +227,7 @@
         function assignRole() {
             quizSection.classList.add("hidden");
             roleSection.classList.remove("hidden");
-            
-            // Pick the most frequent role
+
             const roleCounts = {};
             chosenRoles.forEach(role => {
                 roleCounts[role] = (roleCounts[role] || 0) + 1;
@@ -174,11 +237,7 @@
             roleText.innerText = `Your role on the ship is: ${finalRole}!`;
         }
 
-        // Show transmission and start typing
-        setTimeout(() => {
-            transmissionSection.classList.remove("hidden");
-            typeMessage();
-        }, 2000);
+        startCountdown();
     </script>
 </body>
 </html>
