@@ -8,14 +8,16 @@
         body {
             margin: 0;
             overflow: hidden;
-            background: black;
+            background: url('space-background.gif') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
         }
         canvas {
             display: block;
         }
-        /* Overlay Pop-up Instructions */
+        /* Overlay for Welcome & Game Over Screens */
         .overlay {
-            position: fixed;
+            position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -24,13 +26,16 @@
             color: white;
             text-align: center;
             padding: 20px;
-            border: 2px solid white;
+            border-radius: 10px;
             z-index: 10;
             display: flex;
             flex-direction: column;
             box-shadow: 0 0 10px white;
         }
-        .start-btn {
+        .hidden {
+            display: none !important;
+        }
+        .btn {
             background: white;
             color: black;
             padding: 10px;
@@ -38,21 +43,28 @@
             font-size: 16px;
             cursor: pointer;
             margin-top: 15px;
+            width: 100%;
         }
     </style>
 </head>
 <body>
+    <canvas id="gameCanvas"></canvas>
+
     <!-- Instruction Popup (Overlay on Game Screen) -->
-    <div class="overlay" id="instructions">
+    <div id="instructions" class="overlay">
         <h2>Welcome to the Vinyl Collection Quest! 🎶</h2>
-        <p>🎯 **Collect 10 vinyl records** to complete your mission.</p>
-        <p>⚠️ **Avoid the Grammy awards**—getting hit by one ends the game!</p>
-        <p>🎮 **Use Left & Right Arrow Keys to Move**</p>
-        <p>💥 **Press Spacebar to Shoot & Destroy Grammys!**</p>
-        <button class="start-btn" onclick="startGame()">Start Game</button>
+        <p>🎯 <strong>Collect 10 vinyl records</strong> to complete your mission.</p>
+        <p>⚠️ <strong>Avoid the Grammy awards</strong>—getting hit by one ends the game!</p>
+        <p>🎮 <strong>Use Left & Right Arrow Keys to Move</strong></p>
+        <p>💥 <strong>Press Spacebar to Shoot & Destroy Grammys!</strong></p>
+        <button class="btn" onclick="startGame()">Start Game</button>
     </div>
 
-    <canvas id="gameCanvas"></canvas>
+    <!-- Game Over Overlay -->
+    <div id="gameOverScreen" class="overlay hidden">
+        <h2 id="gameOverMessage"></h2>
+        <button class="btn" onclick="restartGame()">Play Again</button>
+    </div>
 
     <script>
         const canvas = document.getElementById("gameCanvas");
@@ -67,11 +79,11 @@
         let beamImage = new Image();
         let backgroundImage = new Image();
 
-        playerImage.src = "player.png"; // Upload to GitHub
-        vinylImage.src = "vinyl.png"; // Upload to GitHub
-        grammyImage.src = "grammy.png"; // Upload to GitHub
-        beamImage.src = "beam.png"; // Upload to GitHub
-        backgroundImage.src = "space-background.gif"; // Upload to GitHub
+        playerImage.src = "player.png"; 
+        vinylImage.src = "vinyl.png"; 
+        grammyImage.src = "grammy.png"; 
+        beamImage.src = "beam.png"; 
+        backgroundImage.src = "space-background.gif"; 
 
         class Player {
             constructor() {
@@ -98,15 +110,11 @@
                 this.height = 40;
                 this.x = Math.random() * (canvas.width - this.width);
                 this.y = -this.height;
-                this.speed = Math.random() * 7 + 4; // Falling speed
-                this.type = type; // 'vinyl' or 'grammy'
+                this.speed = Math.random() * 7 + 4;
+                this.type = type;
             }
             draw() {
-                if (this.type === "vinyl") {
-                    ctx.drawImage(vinylImage, this.x, this.y, this.width, this.height);
-                } else {
-                    ctx.drawImage(grammyImage, this.x, this.y, this.width, this.height);
-                }
+                ctx.drawImage(this.type === "vinyl" ? vinylImage : grammyImage, this.x, this.y, this.width, this.height);
             }
             update() {
                 this.y += this.speed;
@@ -135,10 +143,11 @@
         let beams = [];
         let score = 0;
         let gameOver = false;
-        let gameRunning = false; // Ensure the game restarts correctly
+        let gameRunning = false;
 
         function spawnItem() {
-            let type = Math.random() < 0.8 ? "grammy" : "vinyl"; // 80% Grammys, 20% Vinyls
+            if (!gameRunning) return;
+            let type = Math.random() < 0.8 ? "grammy" : "vinyl";
             items.push(new FallingItem(type));
         }
 
@@ -156,15 +165,13 @@
         }
 
         function update() {
-            if (gameOver) return;
+            if (!gameRunning) return;
             player.update();
             items.forEach(item => item.update());
             beams.forEach(beam => beam.update());
 
-            // Remove off-screen beams
             beams = beams.filter(beam => beam.y > 0);
 
-            // Check for collisions
             items.forEach((item, index) => {
                 if (
                     player.x < item.x + item.width &&
@@ -177,18 +184,15 @@
                         items.splice(index, 1);
                         if (score >= 10) {
                             gameOver = true;
-                            setTimeout(() => alert("🎉 You collected all the vinyls! Mission Complete!"), 100);
-                            restartGame();
+                            endGame("🎉 You collected all 10 vinyls! Mission Complete!");
                         }
                     } else if (item.type === "grammy") {
                         gameOver = true;
-                        setTimeout(() => alert("💀 You got hit by a Grammy! Game Over."), 100);
-                        restartGame();
+                        endGame("💀 You got hit by a Grammy! Game Over.");
                     }
                 }
             });
 
-            // Check for beam collision with Grammys
             beams.forEach((beam, beamIndex) => {
                 items.forEach((item, itemIndex) => {
                     if (
@@ -198,13 +202,12 @@
                         beam.y + beam.height > item.y &&
                         item.type === "grammy"
                     ) {
-                        items.splice(itemIndex, 1); // Remove Grammy
-                        beams.splice(beamIndex, 1); // Remove beam
+                        items.splice(itemIndex, 1);
+                        beams.splice(beamIndex, 1);
                     }
                 });
             });
 
-            // Remove items that fall off-screen
             items = items.filter(item => item.y < canvas.height);
         }
 
@@ -218,8 +221,8 @@
         function keyDown(e) {
             if (e.key === "ArrowRight") player.dx = player.speed;
             if (e.key === "ArrowLeft") player.dx = -player.speed;
-            if (e.key === " " && gameRunning) {
-                beams.push(new Beam(player.x + player.width / 2 - 5, player.y)); // Shoot beam
+            if (e.code === "Space" && gameRunning) {
+                beams.push(new Beam(player.x + player.width / 2 - 5, player.y));
             }
         }
 
@@ -231,7 +234,7 @@
         window.addEventListener("keyup", keyUp);
 
         function startGame() {
-            document.getElementById("instructions").style.display = "none";
+            document.getElementById("instructions").classList.add("hidden");
             items = [];
             beams = [];
             score = 0;
@@ -241,11 +244,15 @@
             loop();
         }
 
-        function restartGame() {
+        function endGame(message) {
             gameRunning = false;
-            setTimeout(() => {
-                document.getElementById("instructions").style.display = "flex";
-            }, 1000);
+            document.getElementById("gameOverMessage").innerText = message;
+            document.getElementById("gameOverScreen").classList.remove("hidden");
+        }
+
+        function restartGame() {
+            document.getElementById("gameOverScreen").classList.add("hidden");
+            startGame();
         }
     </script>
 </body>
