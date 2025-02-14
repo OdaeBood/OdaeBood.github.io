@@ -15,7 +15,7 @@
         canvas {
             display: block;
         }
-        /* Overlay for Welcome, Game Over, and Ambrosia Delay Screens */
+        /* Overlay for Welcome, Mission Complete & Ambrosia Delay Screens */
         .overlay {
             position: absolute;
             top: 50%;
@@ -45,22 +45,27 @@
             margin-top: 15px;
             width: 100%;
         }
-        /* Black screen for Ambrosia delay message */
-        .black-screen {
-            position: fixed;
+        /* Black Screen for Mission Delay */
+        #ambrosiaScreen {
+            position: absolute;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
             background: black;
-            display: flex;
+            display: none;
             justify-content: center;
             align-items: center;
+        }
+        .transmission-box {
+            background: rgba(0, 0, 0, 0.85);
+            padding: 20px;
+            border: 2px solid white;
             color: white;
-            font-size: 1.5rem;
             text-align: center;
-            z-index: 20;
-            flex-direction: column;
+            font-size: 1.2rem;
+            max-width: 500px;
+            box-shadow: 0 0 10px white;
         }
     </style>
 </head>
@@ -77,18 +82,19 @@
         <button class="btn" onclick="startGame()">Start Game</button>
     </div>
 
-    <!-- Game Over Overlay -->
-    <div id="gameOverScreen" class="overlay hidden">
-        <h2 id="gameOverMessage"></h2>
+    <!-- Mission Complete Screen -->
+    <div id="missionCompleteScreen" class="overlay hidden">
+        <h2>🎉 Mission Complete!</h2>
+        <p>You collected all 10 vinyls!</p>
         <button class="btn" onclick="restartGame()">Play Again</button>
         <button class="btn" onclick="continueToAmbrosia()">Continue to Ambrosia</button>
     </div>
 
-    <!-- Black Screen for Ambrosia Delay Message -->
-    <div id="ambrosiaScreen" class="black-screen hidden">
-        <div class="overlay">
-            <h2>🚀 Incoming Transmission...</h2>
-            <p>Unfortunately, our crew was sabotaged and given wrong coordinates that delay our mission. Stand by, awaiting new coordinates.</p>
+    <!-- Ambrosia Delay Screen -->
+    <div id="ambrosiaScreen">
+        <div class="transmission-box">
+            <h2>Incoming Transmission...</h2>
+            <p id="delayMessage"></p>
         </div>
     </div>
 
@@ -183,7 +189,6 @@
             player.draw();
             items.forEach(item => item.draw());
             beams.forEach(beam => beam.draw());
-
             ctx.fillStyle = "white";
             ctx.font = "20px Arial";
             ctx.fillText(`Vinyls Collected: ${score}/10`, 20, 30);
@@ -195,68 +200,33 @@
             items.forEach(item => item.update());
             beams.forEach(beam => beam.update());
 
-            beams = beams.filter(beam => beam.y > 0);
-
             items.forEach((item, index) => {
-                if (
-                    player.x < item.x + item.width &&
-                    player.x + player.width > item.x &&
-                    player.y < item.y + item.height &&
-                    player.y + player.height > item.y
-                ) {
+                if (player.x < item.x + item.width && player.x + player.width > item.x &&
+                    player.y < item.y + item.height && player.y + player.height > item.y) {
                     if (item.type === "vinyl") {
                         score++;
                         items.splice(index, 1);
                         if (score >= 10) {
-                            gameOver = true;
-                            showEndScreen();
+                            gameRunning = false;
+                            document.getElementById("missionCompleteScreen").classList.remove("hidden");
                         }
-                    } else if (item.type === "grammy") {
-                        gameOver = true;
-                        showEndScreen();
                     }
                 }
             });
-
-            items = items.filter(item => item.y < canvas.height);
-        }
-
-        function showEndScreen() {
-            gameRunning = false;
-            document.getElementById("gameOverScreen").classList.remove("hidden");
-        }
-
-        function continueToAmbrosia() {
-            document.getElementById("gameOverScreen").classList.add("hidden");
-            document.getElementById("ambrosiaScreen").classList.remove("hidden");
-        }
-
-        function restartGame() {
-            location.reload();
         }
 
         function startGame() {
             document.getElementById("instructions").classList.add("hidden");
             gameRunning = true;
             setInterval(spawnItem, 600);
-            loop();
-        }
-
-        function loop() {
-            update();
-            draw();
             requestAnimationFrame(loop);
         }
 
-        window.addEventListener("keydown", (e) => {
-            if (e.key === "ArrowRight") player.dx = player.speed;
-            if (e.key === "ArrowLeft") player.dx = -player.speed;
-            if (e.code === "Space" && gameRunning) beams.push(new Beam(player.x + player.width / 2 - 5, player.y));
-        });
-
-        window.addEventListener("keyup", (e) => {
-            if (e.key === "ArrowRight" || e.key === "ArrowLeft") player.dx = 0;
-        });
+        function continueToAmbrosia() {
+            document.getElementById("missionCompleteScreen").classList.add("hidden");
+            document.getElementById("ambrosiaScreen").style.display = "flex";
+            document.getElementById("delayMessage").innerText = "Unfortunately, our crew was sabotaged and given wrong coordinates that delay our mission. Stand by, awaiting new coordinates.";
+        }
     </script>
 </body>
 </html>
