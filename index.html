@@ -61,7 +61,7 @@
     <div id="countdown">10</div>
     <div id="coordinates">Coordinates Received: Galaxy: Andromeda | Sector 7B | Vector 42</div>
     <div class="stars-container">
-        <p>Click the stars to decrypt the message:</p>
+        <h2>Click the stars to decrypt the message:</h2>
         <span class="star" onclick="revealStar(0)">⭐</span>
         <span class="star" onclick="revealStar(1)">⭐</span>
         <span class="star" onclick="revealStar(2)">⭐</span>
@@ -87,7 +87,7 @@
                     setTimeout(() => {
                         document.getElementById("coordinates").style.opacity = "0";
                         document.querySelector(".stars-container").style.display = "block";
-                        document.getElementById("statusText").innerText = "Click the stars to decrypt the message";
+                        document.getElementById("statusText").innerText = "Click the stars to decrypt the message:";
                     }, 3000);
                 }
             }, 1000);
