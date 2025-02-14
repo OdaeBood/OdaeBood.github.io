@@ -13,25 +13,40 @@
         canvas {
             display: block;
         }
-        .game-info {
-            position: absolute;
-            top: 10px;
+        .overlay {
+            position: fixed;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
+            transform: translate(-50%, -50%);
+            width: 400px;
+            background: rgba(0, 0, 0, 0.9);
             color: white;
-            padding: 10px;
-            border-radius: 5px;
             text-align: center;
-            font-size: 18px;
+            padding: 20px;
+            border: 2px solid white;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+        .start-btn {
+            background: white;
+            color: black;
+            padding: 10px;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
-    <div class="game-info">
-        🎶 **Collect 10 vinyl records to win!** 🎵 <br>
-        🏆 **Avoid the Grammy awards—getting hit means Game Over!** <br>
-        ⬅️➡️ **Move using Arrow Keys**
+    <!-- Instruction Popup -->
+    <div class="overlay" id="instructions">
+        <h2>Welcome to the Vinyl Collection Quest!</h2>
+        <p>🎶 **Collect 10 vinyl records** to complete your mission.</p>
+        <p>🏆 **Avoid the Grammy awards**—getting hit by one ends the game!</p>
+        <p>⬅️➡️ **Move using Arrow Keys**</p>
+        <button class="start-btn" onclick="startGame()">Start Game</button>
     </div>
 
     <canvas id="gameCanvas"></canvas>
@@ -78,7 +93,7 @@
                 this.height = 40;
                 this.x = Math.random() * (canvas.width - this.width);
                 this.y = -this.height;
-                this.speed = Math.random() * 6 + 3; // Increased falling speed by 2x
+                this.speed = Math.random() * 5 + 4; // Increased falling speed
                 this.type = type; // 'vinyl' or 'grammy'
             }
             draw() {
@@ -99,7 +114,7 @@
         let gameOver = false;
 
         function spawnItem() {
-            let type = Math.random() < 0.3 ? "vinyl" : "grammy"; // **30% Vinyls, 70% Grammys**
+            let type = Math.random() < 0.7 ? "grammy" : "vinyl"; // 70% Grammys, 30% Vinyls
             items.push(new FallingItem(type));
         }
 
@@ -165,11 +180,10 @@
         window.addEventListener("keyup", keyUp);
 
         function startGame() {
-            setInterval(spawnItem, 800); // Faster item spawn rate
+            document.getElementById("instructions").style.display = "none"; // Remove popup
+            setInterval(spawnItem, 800); // Spawn items every 0.8 seconds (faster pace)
             loop();
         }
-
-        startGame(); // Start game immediately
     </script>
 </body>
 </html>
