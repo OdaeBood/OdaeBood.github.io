@@ -58,6 +58,16 @@
             cursor: pointer;
             color: gold;
         }
+        .transition {
+            background: url('hyperdrive-transition.gif') no-repeat center center;
+            background-size: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+        }
     </style>
 </head>
 <body>
@@ -70,6 +80,8 @@
         <h1 class="blink">Coordinates Received!</h1>
         <p>Galaxy: Andromeda | Sector 7B | Vector 42</p>
     </div>
+
+    <div id="transition-section" class="hidden transition"></div>
 
     <div id="decrypt-section" class="hidden">
         <div class="background"></div>
@@ -88,6 +100,7 @@
         const countdownElement = document.getElementById("countdown");
         const countdownSection = document.getElementById("countdown-section");
         const coordinatesSection = document.getElementById("coordinates-section");
+        const transitionSection = document.getElementById("transition-section");
         const decryptSection = document.getElementById("decrypt-section");
 
         function startCountdown() {
@@ -104,7 +117,11 @@
                             coordinatesSection.classList.add("fade-out");
                             setTimeout(() => {
                                 coordinatesSection.classList.add("hidden");
-                                decryptSection.classList.remove("hidden");
+                                transitionSection.classList.remove("hidden");
+                                setTimeout(() => {
+                                    transitionSection.classList.add("hidden");
+                                    decryptSection.classList.remove("hidden");
+                                }, 4000); // Show transition GIF for 4 seconds
                             }, 2000);
                         }, 4000);
                     }, 2000);
