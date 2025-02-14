@@ -32,7 +32,6 @@
                 visibility: hidden;
             }
         }
-        /* Background GIF */
         .background {
             position: fixed;
             top: 0;
@@ -44,11 +43,39 @@
             z-index: -1;
         }
         .text-box {
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.8);
             padding: 20px;
-            border-radius: 10px;
+            border: 3px solid white;
+            width: 80%;
+            max-width: 600px;
+            text-align: left;
+            font-size: 1.2rem;
+            position: relative;
         }
-        /* Hyperdrive transition */
+        .typing {
+            white-space: pre-wrap;
+            overflow: hidden;
+            display: inline-block;
+        }
+        .options {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .option {
+            padding: 10px;
+            border: 2px solid white;
+            background: none;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .option:hover {
+            background: white;
+            color: black;
+        }
         .transition {
             background: url('hyperdrive-transition.gif') no-repeat center center;
             background-size: cover;
@@ -58,13 +85,6 @@
             width: 100vw;
             height: 100vh;
             z-index: 10;
-        }
-        /* Game styles */
-        #gameCanvas {
-            display: none;
-            border: 2px solid white;
-            background: url('space-game-bg.gif') no-repeat center center;
-            background-size: cover;
         }
     </style>
 </head>
@@ -81,31 +101,27 @@
 
     <div id="transition-section" class="hidden transition"></div>
 
-    <div id="decrypt-section" class="hidden">
-        <div class="background"></div>
-        <div class="text-box">
-            <h1>Incoming Transmission</h1>
-            <p id="typing-text"></p>
-        </div>
+    <div class="background hidden" id="gif-background"></div>
+
+    <div id="transmission-section" class="text-box hidden">
+        <h2>Incoming Transmission...</h2>
+        <p id="typing-text" class="typing"></p>
     </div>
 
-    <div id="test-section" class="hidden">
-        <div class="text-box">
-            <h1>Cosmic Compatibility Test</h1>
-            <p id="question-text"></p>
-            <div id="choices"></div>
-        </div>
+    <div id="quiz-section" class="text-box hidden">
+        <h2>Cosmic Compatibility Test</h2>
+        <p id="quiz-question"></p>
+        <div class="options" id="options-container"></div>
     </div>
 
-    <div id="role-section" class="hidden">
-        <div class="text-box">
-            <h1>Congratulations!</h1>
-            <p id="role-text"></p>
-            <button onclick="startHyperdrive()">🚀 Let's go!</button>
-        </div>
+    <div id="role-section" class="text-box hidden">
+        <h2>Congratulations!</h2>
+        <p id="role-text"></p>
+        <p id="nickname-text"></p>
+        <p>We've set course for <strong>Planet Ambrosia</strong>. A world of celestial melodies and harmonic wonders.</p>
+        <p>Are you ready to embark on the next phase of your journey?</p>
+        <button onclick="startGame()" class="option">🚀 Let's go!</button>
     </div>
-
-    <canvas id="gameCanvas" width="800" height="500"></canvas>
 
     <script>
         let countdown = 10;
@@ -113,10 +129,14 @@
         const countdownSection = document.getElementById("countdown-section");
         const coordinatesSection = document.getElementById("coordinates-section");
         const transitionSection = document.getElementById("transition-section");
-        const decryptSection = document.getElementById("decrypt-section");
-        const testSection = document.getElementById("test-section");
+        const transmissionSection = document.getElementById("transmission-section");
+        const quizSection = document.getElementById("quiz-section");
         const roleSection = document.getElementById("role-section");
-        const gameCanvas = document.getElementById("gameCanvas");
+        const quizQuestion = document.getElementById("quiz-question");
+        const optionsContainer = document.getElementById("options-container");
+        const roleText = document.getElementById("role-text");
+        const nicknameText = document.getElementById("nickname-text");
+        const gifBackground = document.getElementById("gif-background");
 
         function startCountdown() {
             const interval = setInterval(() => {
@@ -135,8 +155,9 @@
                                 transitionSection.classList.remove("hidden");
                                 setTimeout(() => {
                                     transitionSection.classList.add("hidden");
-                                    decryptSection.classList.remove("hidden");
-                                    startTyping();
+                                    gifBackground.classList.remove("hidden");
+                                    transmissionSection.classList.remove("hidden");
+                                    typeMessage();
                                 }, 4000);
                             }, 2000);
                         }, 4000);
@@ -145,83 +166,66 @@
             }, 1000);
         }
 
-        function startTyping() {
-            let text = "Hi Delah, this is the captain speaking. We are currently travelling at light speed towards our destination. Why don't we burn some time along the way?";
-            let index = 0;
-            const typingElement = document.getElementById("typing-text");
-            function type() {
-                if (index < text.length) {
-                    typingElement.innerHTML += text.charAt(index);
-                    index++;
-                    setTimeout(type, 50);
-                } else {
-                    setTimeout(() => {
-                        decryptSection.classList.add("fade-out");
-                        setTimeout(() => {
-                            decryptSection.classList.add("hidden");
-                            testSection.classList.remove("hidden");
-                            startTest();
-                        }, 2000);
-                    }, 3000);
-                }
+        const message = "Hi Delah, this is the captain speaking. We are currently travelling at light speed towards our destination. Why don't we burn some time along the way?";
+        const typingText = document.getElementById("typing-text");
+        let currentIndex = 0;
+
+        function typeMessage() {
+            if (currentIndex < message.length) {
+                typingText.innerHTML += message[currentIndex];
+                currentIndex++;
+                setTimeout(typeMessage, 50);
+            } else {
+                setTimeout(startQuiz, 2000);
             }
-            type();
         }
 
-        function startTest() {
-            let questions = [
-                { q: "What planet would you visit first?", choices: ["Mars", "Saturn", "Jupiter"] },
-                { q: "What is your cosmic calling?", choices: ["Explorer", "Navigator", "Scientist"] },
-                { q: "What’s your ideal spaceship?", choices: ["Speed", "Luxury", "Technology"] }
-            ];
-            let currentQuestion = 0;
-            let questionText = document.getElementById("question-text");
-            let choicesDiv = document.getElementById("choices");
+        const quizData = [
+            { question: "Which celestial body fascinates you the most?", options: ["A Black Hole", "A Distant Galaxy", "The Moon"], answers: ["Navigator", "Engineer", "Communications Officer"] },
+            { question: "If you were given command, how would you lead?", options: ["With Precise Calculations", "With Innovative Ideas", "With Motivational Speeches"], answers: ["Captain", "Scientist", "Diplomat"] },
+            { question: "In the event of an alien encounter, what is your first response?", options: ["Observe from a distance", "Attempt communication", "Prepare for battle"], answers: ["Explorer", "Linguist", "Defender"] }
+        ];
 
-            function showQuestion() {
-                if (currentQuestion < questions.length) {
-                    questionText.innerText = questions[currentQuestion].q;
-                    choicesDiv.innerHTML = "";
-                    questions[currentQuestion].choices.forEach(choice => {
-                        let button = document.createElement("button");
-                        button.innerText = choice;
-                        button.onclick = () => {
-                            currentQuestion++;
-                            showQuestion();
-                        };
-                        choicesDiv.appendChild(button);
-                    });
-                } else {
-                    testSection.classList.add("fade-out");
-                    setTimeout(() => {
-                        testSection.classList.add("hidden");
-                        roleSection.classList.remove("hidden");
-                        assignRole();
-                    }, 2000);
-                }
-            }
+        let questionIndex = 0;
+        let chosenRoles = [];
+
+        function startQuiz() {
+            transmissionSection.classList.add("hidden");
+            quizSection.classList.remove("hidden");
             showQuestion();
         }
 
-        function assignRole() {
-            document.getElementById("role-text").innerHTML = `
-                Your role on the ship is: <b>Navigator!</b><br>
-                The crew has given you the nickname: <b>"Ms. Calypso"</b> for your raw talent and unwavering passion for music.<br>
-                We've set course for <b>Planet Ambrosia.</b> A world of celestial melodies and harmonic wonders.<br>
-                Are you ready to embark on the next phase of your journey?
-            `;
+        function showQuestion() {
+            if (questionIndex < quizData.length) {
+                const data = quizData[questionIndex];
+                quizQuestion.innerText = data.question;
+                optionsContainer.innerHTML = "";
+
+                data.options.forEach((option, i) => {
+                    const btn = document.createElement("button");
+                    btn.classList.add("option");
+                    btn.innerText = option;
+                    btn.onclick = () => {
+                        chosenRoles.push(data.answers[i]);
+                        questionIndex++;
+                        showQuestion();
+                    };
+                    optionsContainer.appendChild(btn);
+                });
+            } else {
+                assignRole();
+            }
         }
 
-        function startHyperdrive() {
-            roleSection.classList.add("fade-out");
-            setTimeout(() => {
-                roleSection.classList.add("hidden");
-                transitionSection.classList.remove("hidden");
-                setTimeout(() => {
-                    transitionSection.classList.add("hidden");
-                    startGame();
-                }, 4000);
-            }, 2000);
+        function assignRole() {
+            quizSection.classList.add("hidden");
+            roleSection.classList.remove("hidden");
+            roleText.innerText = `Your role on the ship is: ${chosenRoles[0]}!`;
+            nicknameText.innerText = `The crew has given you the nickname: "Ms. Calypso" for your raw talent and unwavering passion for music.`;
+        }
+
+        function startGame() {
+            window.location.href = "game.html";
         }
 
         startCountdown();
