@@ -50,17 +50,7 @@
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             display: none;
         }
-        .game-over button {
-            background: white;
-            color: black;
-            border: none;
-            padding: 10px;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 10px;
-            width: 100%;
-        }
-        .popup button {
+        .game-over button, .popup button {
             background: white;
             color: black;
             border: none;
@@ -81,7 +71,7 @@
         <p>🎯 <strong>Collect 10 vinyl records</strong> to complete your mission.</p>
         <p>⚠️ <strong>Avoid the Grammy awards</strong>—getting hit by one ends the game!</p>
         <p>🎮 <strong>Use Left & Right Arrow Keys to Move</strong></p>
-        <button onclick="startGame()">Start Game</button>
+        <button onclick="hidePopupAndStartGame()">Start Game</button>
     </div>
 
     <!-- Game Over Popup -->
@@ -103,10 +93,10 @@
         let grammyImage = new Image();
         let backgroundImage = new Image();
 
-        playerImage.src = "spaceship.png"; // Upload this to GitHub
-        vinylImage.src = "vinyl.png"; // Upload this to GitHub
-        grammyImage.src = "grammy.png"; // Upload this to GitHub
-        backgroundImage.src = "space-background.gif"; // Upload this to GitHub
+        playerImage.src = "spaceship.png"; 
+        vinylImage.src = "vinyl.png"; 
+        grammyImage.src = "grammy.png"; 
+        backgroundImage.src = "space-background.gif"; 
 
         class Player {
             constructor() {
@@ -150,10 +140,11 @@
         let score = 0;
         const maxVinyls = 10;
         const gameOverScreen = document.getElementById("gameOverScreen");
+        let gameRunning = false;
 
         function spawnObjects() {
             setInterval(() => {
-                let type = Math.random() > 0.75 ? "vinyl" : "grammy"; // More Grammys, fewer Vinyls
+                let type = Math.random() > 0.75 ? "vinyl" : "grammy"; 
                 fallingObjects.push(new FallingObject(type));
             }, 500);
         }
@@ -165,6 +156,8 @@
         }
 
         function update() {
+            if (!gameRunning) return; 
+
             player.update();
             fallingObjects.forEach((obj, index) => {
                 obj.update();
@@ -208,13 +201,15 @@
             if (e.key === "ArrowRight" || e.key === "ArrowLeft") player.dx = 0;
         }
 
-        function startGame() {
+        function hidePopupAndStartGame() {
             document.getElementById("instructions").classList.add("hidden");
+            gameRunning = true; 
             spawnObjects();
             loop();
         }
 
         function gameOver() {
+            gameRunning = false;
             gameOverScreen.style.display = "block";
         }
 
