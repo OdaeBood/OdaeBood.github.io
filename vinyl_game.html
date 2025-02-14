@@ -8,8 +8,7 @@
         body {
             margin: 0;
             overflow: hidden;
-            background: url('space-background.gif') no-repeat center center fixed;
-            background-size: cover;
+            background: black;
         }
         canvas {
             display: block;
@@ -29,9 +28,14 @@
         let vinylImage = new Image();
         let backgroundImage = new Image();
 
-        playerImage.src = "spaceship.png"; // Upload this to GitHub
-        vinylImage.src = "vinyl.png"; // Upload this to GitHub
-        backgroundImage.src = "space-background.gif"; // Upload this to GitHub
+        playerImage.src = "spaceship.png";
+        vinylImage.src = "vinyl.png";
+        backgroundImage.src = "space-background.gif";
+
+        // Error handling: Log if images fail to load
+        playerImage.onerror = () => console.error("Error loading spaceship.png - Check if it exists in GitHub.");
+        vinylImage.onerror = () => console.error("Error loading vinyl.png - Check if it exists in GitHub.");
+        backgroundImage.onerror = () => console.error("Error loading space-background.gif - Check if it exists in GitHub.");
 
         class Player {
             constructor() {
@@ -44,7 +48,7 @@
                 this.dy = 0;
             }
             draw() {
-                if (playerImage.complete) {
+                if (playerImage.complete && playerImage.naturalHeight !== 0) {
                     ctx.drawImage(playerImage, this.x, this.y, this.width, this.height);
                 } else {
                     ctx.fillStyle = "blue";
@@ -71,7 +75,7 @@
                 this.y = Math.random() * (canvas.height - this.height - 100);
             }
             draw() {
-                if (vinylImage.complete) {
+                if (vinylImage.complete && vinylImage.naturalHeight !== 0) {
                     ctx.drawImage(vinylImage, this.x, this.y, this.width, this.height);
                 } else {
                     ctx.fillStyle = "gold";
@@ -94,7 +98,7 @@
         }
 
         function draw() {
-            if (backgroundImage.complete) {
+            if (backgroundImage.complete && backgroundImage.naturalHeight !== 0) {
                 ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
             } else {
                 ctx.fillStyle = "black";
@@ -149,7 +153,7 @@
 
         spawnVinyls();
 
-        // Start game **only after images load**
+        // Start game **only after images load or log errors**
         backgroundImage.onload = () => {
             playerImage.onload = () => {
                 vinylImage.onload = () => {
@@ -157,6 +161,14 @@
                 };
             };
         };
+
+        // If images never load, start the game anyway after 3 seconds
+        setTimeout(() => {
+            if (!playerImage.complete || !vinylImage.complete || !backgroundImage.complete) {
+                console.warn("Images failed to load, but starting game anyway.");
+                loop();
+            }
+        }, 3000);
     </script>
 </body>
 </html>
