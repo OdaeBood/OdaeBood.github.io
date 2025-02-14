@@ -32,7 +32,7 @@
                 visibility: hidden;
             }
         }
-        /* Background GIF (Fix applied here!) */
+        /* Background GIF remains for all sections */
         .background {
             position: fixed;
             top: 0;
@@ -90,6 +90,9 @@
     </style>
 </head>
 <body>
+    <!-- Background stays on screen -->
+    <div class="background"></div> 
+
     <!-- Countdown Section -->
     <div id="countdown-section">
         <h1>Awaiting Coordinates...</h1>
@@ -105,14 +108,13 @@
     <!-- Transition Effect (Light Speed Travel) -->
     <div id="transition-section" class="hidden transition"></div>
 
-    <!-- Incoming Transmission Section (Background FIXED!) -->
+    <!-- Incoming Transmission Section -->
     <div id="transmission-section" class="text-box hidden">
-        <div class="background"></div> <!-- This ensures the background GIF appears! -->
         <h2>Incoming Transmission...</h2>
         <p id="typing-text" class="typing"></p>
     </div>
 
-    <!-- Cosmic Compatibility Test -->
+    <!-- Cosmic Compatibility Test (Background Stays) -->
     <div id="quiz-section" class="text-box hidden">
         <h2>Cosmic Compatibility Test</h2>
         <p id="quiz-question"></p>
