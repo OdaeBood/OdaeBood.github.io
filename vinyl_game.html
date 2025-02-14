@@ -15,7 +15,6 @@
         canvas {
             display: block;
         }
-        /* Overlay Pop-up Instructions */
         .overlay {
             position: absolute;
             top: 50%;
@@ -64,7 +63,6 @@
 <body>
     <canvas id="gameCanvas"></canvas>
 
-    <!-- Instruction Popup (Overlay on Game Screen) -->
     <div id="instructions" class="overlay">
         <h2>Welcome to the Vinyl Collection Quest! 🎶</h2>
         <p>🎯 <strong>Collect 10 vinyl records</strong> to complete your mission.</p>
@@ -73,7 +71,6 @@
         <button class="btn" onclick="startGame()">Start Game</button>
     </div>
 
-    <!-- Game Over Popup -->
     <div id="gameOverScreen" class="game-over">
         <h2>Game Over! 💀</h2>
         <p>You got hit by a Grammy!</p>
@@ -100,7 +97,8 @@
         let gameRunning = false;
         let score = 0;
         let items = [];
-
+        let spawnInterval;
+        
         class Player {
             constructor() {
                 this.width = 50;
@@ -126,8 +124,8 @@
                 this.height = 40;
                 this.x = Math.random() * (canvas.width - this.width);
                 this.y = -this.height;
-                this.speed = Math.random() * 7 + 4; // Increased falling speed
-                this.type = type; // 'vinyl' or 'grammy'
+                this.speed = Math.random() * 7 + 4;
+                this.type = type;
             }
             draw() {
                 ctx.drawImage(this.type === "vinyl" ? vinylImage : grammyImage, this.x, this.y, this.width, this.height);
@@ -141,7 +139,7 @@
 
         function spawnItem() {
             if (!gameRunning) return;
-            let type = Math.random() < 0.8 ? "grammy" : "vinyl"; // 80% Grammys, 20% Vinyls
+            let type = Math.random() < 0.8 ? "grammy" : "vinyl";
             items.push(new FallingItem(type));
         }
 
@@ -151,7 +149,6 @@
             player.draw();
             items.forEach(item => item.draw());
 
-            // Display Score
             ctx.fillStyle = "white";
             ctx.font = "20px Arial";
             ctx.fillText(`Vinyls Collected: ${score}/10`, 20, 30);
@@ -162,7 +159,6 @@
             player.update();
             items.forEach(item => item.update());
 
-            // Check for collisions
             items.forEach((item, index) => {
                 if (
                     player.x < item.x + item.width &&
@@ -178,10 +174,12 @@
                                 document.getElementById("gameOverScreen").innerHTML = "<h2>🎉 Mission Complete!</h2><p>You collected all 10 vinyls!</p><button class='btn' onclick='restartGame()'>Play Again</button>";
                                 document.getElementById("gameOverScreen").style.display = "block";
                                 gameRunning = false;
+                                clearInterval(spawnInterval);
                             }, 500);
                         }
                     } else {
                         gameRunning = false;
+                        clearInterval(spawnInterval);
                         setTimeout(() => {
                             document.getElementById("gameOverScreen").style.display = "block";
                         }, 300);
@@ -189,7 +187,6 @@
                 }
             });
 
-            // Remove items that fall off-screen
             items = items.filter(item => item.y < canvas.height);
         }
 
@@ -211,17 +208,20 @@
         }
 
         function startGame() {
-            document.getElementById("instructions").classList.add("hidden"); // Hide pop-up
+            document.getElementById("instructions").classList.add("hidden"); 
+            document.getElementById("gameOverScreen").style.display = "none"; 
             gameRunning = true;
-            items = [];
             score = 0;
-            setInterval(spawnItem, 600); // Spawn items every 0.6 seconds
+            items = [];
+            clearInterval(spawnInterval); // Prevent multiple intervals
+            spawnInterval = setInterval(spawnItem, 600);
             loop();
         }
 
         function restartGame() {
             document.getElementById("gameOverScreen").style.display = "none";
-            document.getElementById("instructions").style.display = "flex"; // Show pop-up again
+            document.getElementById("instructions").style.display = "flex";
+            clearInterval(spawnInterval); // Reset interval to avoid stacking
         }
 
         window.addEventListener("keydown", keyDown);
