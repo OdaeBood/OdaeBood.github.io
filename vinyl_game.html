@@ -247,6 +247,16 @@
             draw();
             requestAnimationFrame(loop);
         }
+
+        window.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowRight") player.dx = player.speed;
+            if (e.key === "ArrowLeft") player.dx = -player.speed;
+            if (e.code === "Space" && gameRunning) beams.push(new Beam(player.x + player.width / 2 - 5, player.y));
+        });
+
+        window.addEventListener("keyup", (e) => {
+            if (e.key === "ArrowRight" || e.key === "ArrowLeft") player.dx = 0;
+        });
     </script>
 </body>
 </html>
