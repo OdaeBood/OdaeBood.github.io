@@ -13,6 +13,7 @@
         canvas {
             display: block;
         }
+        /* Pop-up Instructions */
         .overlay {
             position: fixed;
             top: 50%;
@@ -93,7 +94,7 @@
                 this.height = 40;
                 this.x = Math.random() * (canvas.width - this.width);
                 this.y = -this.height;
-                this.speed = Math.random() * 5 + 4; // Increased falling speed
+                this.speed = Math.random() * 7 + 4; // Increased falling speed
                 this.type = type; // 'vinyl' or 'grammy'
             }
             draw() {
@@ -114,7 +115,7 @@
         let gameOver = false;
 
         function spawnItem() {
-            let type = Math.random() < 0.7 ? "grammy" : "vinyl"; // 70% Grammys, 30% Vinyls
+            let type = Math.random() < 0.8 ? "grammy" : "vinyl"; // 80% Grammys, 20% Vinyls
             items.push(new FallingItem(type));
         }
 
@@ -181,7 +182,7 @@
 
         function startGame() {
             document.getElementById("instructions").style.display = "none"; // Remove popup
-            setInterval(spawnItem, 800); // Spawn items every 0.8 seconds (faster pace)
+            setInterval(spawnItem, 600); // Spawn items every 0.6 seconds (faster pace)
             loop();
         }
     </script>
