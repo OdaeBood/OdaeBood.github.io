@@ -8,7 +8,7 @@
         body {
             margin: 0;
             overflow: hidden;
-            background: url('space-background.gif') no-repeat center center fixed;
+            background: url('space-background.jpg') no-repeat center center fixed; /* STATIC IMAGE */
             background-size: cover;
         }
         canvas {
@@ -108,7 +108,7 @@
         playerImage.src = "spaceship.png"; // Upload this to GitHub
         vinylImage.src = "vinyl.png"; // Upload this to GitHub
         grammyImage.src = "grammy.png"; // Upload this to GitHub
-        backgroundImage.src = "space-background.gif"; // Upload this to GitHub
+        backgroundImage.src = "space-background.jpg"; // STATIC IMAGE
 
         class Player {
             constructor() {
@@ -135,7 +135,7 @@
                 this.height = 30;
                 this.x = Math.random() * (canvas.width - this.width);
                 this.y = -30;
-                this.speed = 3 + Math.random() * 2;
+                this.speed = 4 + Math.random() * 2; // Falling speed increased
                 this.type = type;
                 this.image = type === "vinyl" ? vinylImage : grammyImage;
             }
