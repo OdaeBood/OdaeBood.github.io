@@ -21,7 +21,7 @@
         .fade-out { opacity: 0; transition: opacity 2s ease-in-out; }
         .blink { animation: blink-animation 1s steps(2, start) infinite; }
         @keyframes blink-animation { to { visibility: hidden; } }
-        
+
         /* Background GIF */
         .background {
             position: fixed;
@@ -33,7 +33,7 @@
             background-size: cover;
             z-index: -1;
         }
-        
+
         .text-box {
             background: rgba(0, 0, 0, 0.8);
             padding: 20px;
@@ -56,7 +56,7 @@
             transition: 0.3s;
         }
         .option:hover { background: white; color: black; }
-        
+
         /* Hyperdrive Transition */
         .transition {
             background: url('hyperdrive-transition.gif') no-repeat center center;
@@ -68,18 +68,7 @@
             height: 100vh;
             z-index: 10;
         }
-        
-        /* Game Canvas */
-        .game-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: url('game-background.gif') no-repeat center center;
-            background-size: cover;
-        }
-        canvas { display: block; margin: auto; }
+
     </style>
 </head>
 <body>
@@ -173,12 +162,6 @@
             }
         }
 
-        function startQuiz() {
-            transmissionSection.classList.add("hidden");
-            quizSection.classList.remove("hidden");
-            showQuestion();
-        }
-
         const quizData = [
             { question: "Which celestial body fascinates you the most?", options: ["A Black Hole", "A Distant Galaxy", "The Moon"], answers: ["Navigator", "Engineer", "Communications Officer"] },
             { question: "If you were given command, how would you lead?", options: ["With Precise Calculations", "With Innovative Ideas", "With Motivational Speeches"], answers: ["Captain", "Scientist", "Diplomat"] },
@@ -188,11 +171,18 @@
         let questionIndex = 0;
         let chosenRoles = [];
 
+        function startQuiz() {
+            transmissionSection.classList.add("hidden");
+            quizSection.classList.remove("hidden");
+            showQuestion();
+        }
+
         function showQuestion() {
             if (questionIndex < quizData.length) {
                 const data = quizData[questionIndex];
                 quizQuestion.innerText = data.question;
                 optionsContainer.innerHTML = "";
+
                 data.options.forEach((option, i) => {
                     const btn = document.createElement("button");
                     btn.classList.add("option");
@@ -200,13 +190,22 @@
                     btn.onclick = () => {
                         chosenRoles.push(data.answers[i]);
                         questionIndex++;
-                        showQuestion();
+                        if (questionIndex < quizData.length) {
+                            showQuestion();
+                        } else {
+                            assignRole();
+                        }
                     };
                     optionsContainer.appendChild(btn);
                 });
-            } else {
-                assignRole();
             }
+        }
+
+        function assignRole() {
+            quizSection.classList.add("hidden");
+            roleSection.classList.remove("hidden");
+            roleText.innerText = `Your role on the ship is: ${chosenRoles[0]}!`;
+            nicknameText.innerText = `The crew has given you the nickname: "Ms. Calypso" for your raw talent and unwavering passion for music.`;
         }
 
         function activateHyperdrive() {
