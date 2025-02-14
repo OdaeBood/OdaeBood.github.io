@@ -69,6 +69,36 @@
             z-index: 10;
         }
 
+        /* Game Styles */
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: url('space-game-bg.gif') no-repeat center center;
+            background-size: cover;
+        }
+        #player {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: url('spaceship.png') no-repeat center center;
+            background-size: contain;
+        }
+        .vinyl {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: url('vinyl.png') no-repeat center center;
+            background-size: contain;
+        }
+        #score {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -105,6 +135,11 @@
         <button onclick="activateHyperdrive()" class="option">🚀 Let's go!</button>
     </div>
 
+    <div id="game-container" class="hidden">
+        <h1 id="score">Vinyl Records: 0 / 10</h1>
+        <div id="player"></div>
+    </div>
+
     <script>
         let countdown = 10;
         const countdownElement = document.getElementById("countdown");
@@ -114,11 +149,10 @@
         const transmissionSection = document.getElementById("transmission-section");
         const quizSection = document.getElementById("quiz-section");
         const roleSection = document.getElementById("role-section");
-        const quizQuestion = document.getElementById("quiz-question");
-        const optionsContainer = document.getElementById("options-container");
-        const roleText = document.getElementById("role-text");
-        const nicknameText = document.getElementById("nickname-text");
-        const gifBackground = document.getElementById("gif-background");
+        const gameContainer = document.getElementById("game-container");
+        const player = document.getElementById("player");
+        const scoreDisplay = document.getElementById("score");
+        let vinylCount = 0;
 
         function startCountdown() {
             const interval = setInterval(() => {
@@ -137,7 +171,6 @@
                                 transitionSection.classList.remove("hidden");
                                 setTimeout(() => {
                                     transitionSection.classList.add("hidden");
-                                    gifBackground.classList.remove("hidden");
                                     transmissionSection.classList.remove("hidden");
                                     typeMessage();
                                 }, 4000);
@@ -146,66 +179,6 @@
                     }, 2000);
                 }
             }, 1000);
-        }
-
-        const message = "Hi Delah, this is the captain speaking. We are currently travelling at light speed towards our destination. Why don't we burn some time along the way?";
-        const typingText = document.getElementById("typing-text");
-        let currentIndex = 0;
-
-        function typeMessage() {
-            if (currentIndex < message.length) {
-                typingText.innerHTML += message[currentIndex];
-                currentIndex++;
-                setTimeout(typeMessage, 50);
-            } else {
-                setTimeout(startQuiz, 2000);
-            }
-        }
-
-        const quizData = [
-            { question: "Which celestial body fascinates you the most?", options: ["A Black Hole", "A Distant Galaxy", "The Moon"], answers: ["Navigator", "Engineer", "Communications Officer"] },
-            { question: "If you were given command, how would you lead?", options: ["With Precise Calculations", "With Innovative Ideas", "With Motivational Speeches"], answers: ["Captain", "Scientist", "Diplomat"] },
-            { question: "In the event of an alien encounter, what is your first response?", options: ["Observe from a distance", "Attempt communication", "Prepare for battle"], answers: ["Explorer", "Linguist", "Defender"] }
-        ];
-
-        let questionIndex = 0;
-        let chosenRoles = [];
-
-        function startQuiz() {
-            transmissionSection.classList.add("hidden");
-            quizSection.classList.remove("hidden");
-            showQuestion();
-        }
-
-        function showQuestion() {
-            if (questionIndex < quizData.length) {
-                const data = quizData[questionIndex];
-                quizQuestion.innerText = data.question;
-                optionsContainer.innerHTML = "";
-
-                data.options.forEach((option, i) => {
-                    const btn = document.createElement("button");
-                    btn.classList.add("option");
-                    btn.innerText = option;
-                    btn.onclick = () => {
-                        chosenRoles.push(data.answers[i]);
-                        questionIndex++;
-                        if (questionIndex < quizData.length) {
-                            showQuestion();
-                        } else {
-                            assignRole();
-                        }
-                    };
-                    optionsContainer.appendChild(btn);
-                });
-            }
-        }
-
-        function assignRole() {
-            quizSection.classList.add("hidden");
-            roleSection.classList.remove("hidden");
-            roleText.innerText = `Your role on the ship is: ${chosenRoles[0]}!`;
-            nicknameText.innerText = `The crew has given you the nickname: "Ms. Calypso" for your raw talent and unwavering passion for music.`;
         }
 
         function activateHyperdrive() {
@@ -217,7 +190,41 @@
             }, 4000);
         }
 
-        function startGame() { window.location.href = "game.html"; }
+        function startGame() {
+            gameContainer.classList.remove("hidden");
+            document.addEventListener("keydown", movePlayer);
+            spawnVinyl();
+        }
+
+        function movePlayer(event) {
+            const left = parseInt(window.getComputedStyle(player).getPropertyValue("left"));
+            if (event.key === "ArrowLeft" && left > 0) {
+                player.style.left = left - 20 + "px";
+            }
+            if (event.key === "ArrowRight" && left < window.innerWidth - 50) {
+                player.style.left = left + 20 + "px";
+            }
+        }
+
+        function spawnVinyl() {
+            for (let i = 0; i < 10; i++) {
+                const vinyl = document.createElement("div");
+                vinyl.classList.add("vinyl");
+                vinyl.style.left = Math.random() * (window.innerWidth - 40) + "px";
+                vinyl.style.top = Math.random() * (window.innerHeight - 40) + "px";
+                vinyl.addEventListener("click", collectVinyl);
+                gameContainer.appendChild(vinyl);
+            }
+        }
+
+        function collectVinyl(event) {
+            event.target.remove();
+            vinylCount++;
+            scoreDisplay.innerText = `Vinyl Records: ${vinylCount} / 10`;
+            if (vinylCount === 10) {
+                alert("Congratulations! You've collected all the vinyls!");
+            }
+        }
 
         startCountdown();
     </script>
