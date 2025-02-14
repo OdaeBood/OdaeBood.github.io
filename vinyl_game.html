@@ -135,7 +135,7 @@
                 this.height = 30;
                 this.x = Math.random() * (canvas.width - this.width);
                 this.y = -30;
-                this.speed = 4 + Math.random() * 2; // Falling speed increased
+                this.speed = 6 + Math.random() * 2; // Falling speed increased
                 this.type = type;
                 this.image = type === "vinyl" ? vinylImage : grammyImage;
             }
@@ -155,9 +155,9 @@
 
         function spawnObjects() {
             setInterval(() => {
-                let type = Math.random() > 0.7 ? "vinyl" : "grammy"; // More Grammys, fewer Vinyls
+                let type = Math.random() > 0.75 ? "vinyl" : "grammy"; // More Grammys, fewer Vinyls
                 fallingObjects.push(new FallingObject(type));
-            }, 700);
+            }, 500);
         }
 
         function draw() {
