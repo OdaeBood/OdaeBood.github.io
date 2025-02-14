@@ -68,6 +68,7 @@
         <p>🎯 <strong>Collect 10 vinyl records</strong> to complete your mission.</p>
         <p>⚠️ <strong>Avoid the Grammy awards</strong>—getting hit by one ends the game!</p>
         <p>🎮 <strong>Use Left & Right Arrow Keys to Move</strong></p>
+        <p>🔫 <strong>Press Spacebar to Shoot</strong> and destroy Grammys!</p>
         <button class="btn" onclick="startGame()">Start Game</button>
     </div>
 
@@ -88,15 +89,18 @@
         let vinylImage = new Image();
         let grammyImage = new Image();
         let backgroundImage = new Image();
+        let beamImage = new Image();
 
         playerImage.src = "player.png"; 
         vinylImage.src = "vinyl.png"; 
         grammyImage.src = "grammy.png"; 
         backgroundImage.src = "space-background.gif"; 
+        beamImage.src = "beam.png"; // Upload this to GitHub (or replace with a color-based rectangle)
 
         let gameRunning = false;
         let score = 0;
         let items = [];
+        let beams = [];
         let spawnInterval;
         
         class Player {
@@ -135,6 +139,23 @@
             }
         }
 
+        class Beam {
+            constructor(x) {
+                this.width = 10;
+                this.height = 20;
+                this.x = x + 20; // Center of player
+                this.y = canvas.height - 100;
+                this.speed = 10;
+            }
+            draw() {
+                ctx.fillStyle = "cyan"; // Bright laser color
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
+            update() {
+                this.y -= this.speed;
+            }
+        }
+
         let player = new Player();
 
         function spawnItem() {
@@ -148,6 +169,7 @@
             ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
             player.draw();
             items.forEach(item => item.draw());
+            beams.forEach(beam => beam.draw());
 
             ctx.fillStyle = "white";
             ctx.font = "20px Arial";
@@ -158,7 +180,25 @@
             if (!gameRunning) return;
             player.update();
             items.forEach(item => item.update());
+            beams.forEach(beam => beam.update());
 
+            // Beam & Grammy Collision
+            beams.forEach((beam, bIndex) => {
+                items.forEach((item, iIndex) => {
+                    if (
+                        beam.x < item.x + item.width &&
+                        beam.x + beam.width > item.x &&
+                        beam.y < item.y + item.height &&
+                        beam.y + beam.height > item.y &&
+                        item.type === "grammy"
+                    ) {
+                        items.splice(iIndex, 1); // Destroy Grammy
+                        beams.splice(bIndex, 1); // Remove beam
+                    }
+                });
+            });
+
+            // Player Collision
             items.forEach((item, index) => {
                 if (
                     player.x < item.x + item.width &&
@@ -170,24 +210,21 @@
                         score++;
                         items.splice(index, 1);
                         if (score >= 10) {
-                            setTimeout(() => {
-                                document.getElementById("gameOverScreen").innerHTML = "<h2>🎉 Mission Complete!</h2><p>You collected all 10 vinyls!</p><button class='btn' onclick='restartGame()'>Play Again</button>";
-                                document.getElementById("gameOverScreen").style.display = "block";
-                                gameRunning = false;
-                                clearInterval(spawnInterval);
-                            }, 500);
+                            document.getElementById("gameOverScreen").innerHTML = "<h2>🎉 Mission Complete!</h2><p>You collected all 10 vinyls!</p><button class='btn' onclick='restartGame()'>Play Again</button>";
+                            document.getElementById("gameOverScreen").style.display = "block";
+                            gameRunning = false;
+                            clearInterval(spawnInterval);
                         }
                     } else {
                         gameRunning = false;
                         clearInterval(spawnInterval);
-                        setTimeout(() => {
-                            document.getElementById("gameOverScreen").style.display = "block";
-                        }, 300);
+                        document.getElementById("gameOverScreen").style.display = "block";
                     }
                 }
             });
 
             items = items.filter(item => item.y < canvas.height);
+            beams = beams.filter(beam => beam.y > 0);
         }
 
         function loop() {
@@ -201,35 +238,15 @@
         function keyDown(e) {
             if (e.key === "ArrowRight") player.dx = player.speed;
             if (e.key === "ArrowLeft") player.dx = -player.speed;
+            if (e.key === " ") beams.push(new Beam(player.x));
         }
 
         function keyUp(e) {
             if (e.key === "ArrowRight" || e.key === "ArrowLeft") player.dx = 0;
         }
 
-        function startGame() {
-            document.getElementById("instructions").classList.add("hidden"); // Hide popup
-            document.getElementById("gameOverScreen").style.display = "none"; // Hide game over screen
-            gameRunning = true;
-            score = 0;
-            items = [];
-            clearInterval(spawnInterval); // Prevent multiple intervals
-            spawnInterval = setInterval(spawnItem, 600);
-            loop();
-        }
-
-        function restartGame() {
-            document.getElementById("gameOverScreen").style.display = "none";
-            document.getElementById("instructions").classList.remove("hidden"); // Reset instructions
-            clearInterval(spawnInterval); // Reset interval to avoid stacking
-        }
-
         window.addEventListener("keydown", keyDown);
         window.addEventListener("keyup", keyUp);
-
-        backgroundImage.onload = function() {
-            draw();
-        };
     </script>
 </body>
 </html>
