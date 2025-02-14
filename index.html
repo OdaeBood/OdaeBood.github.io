@@ -86,11 +86,12 @@
                 if (countdownValue < 0) {
                     clearInterval(countdownInterval);
                     document.getElementById("countdown").style.display = "none";
-                    document.getElementById("coordinates").style.opacity = "1";
                     document.getElementById("statusText").innerText = "Coordinates Received!";
+                    document.getElementById("coordinates").style.opacity = "1";
                     
                     setTimeout(() => {
                         document.getElementById("coordinates").style.opacity = "0";
+                        document.getElementById("coordinates").style.display = "none";
                         document.getElementById("statusText").innerText = "Click the stars to decrypt the message:";
                         document.querySelector(".stars-container").style.display = "block";
                     }, 3000);
