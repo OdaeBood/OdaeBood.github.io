@@ -20,7 +20,7 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            transition: background 2s ease-in-out;
+            transition: background 1s ease-in-out;
         }
         #countdown {
             font-size: 2rem;
@@ -60,14 +60,20 @@
             background-size: cover;
             display: none;
         }
+        .text-box {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 10px;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
     <h1 id="statusText">Awaiting Coordinates...</h1>
     <div id="countdown">10</div>
-    <div id="coordinates" style="display: none;">Coordinates Received: Galaxy: Andromeda | Sector 7B | Vector 42</div>
+    <div id="coordinates">Coordinates Received!<br>Galaxy: Andromeda | Sector 7B | Vector 42</div>
     <div class="stars-container">
-        <h2>Click the stars to decrypt the message:</h2>
+        <h2 class="text-box">Click the stars to decrypt the message:</h2>
         <span class="star" onclick="revealStar(0)">⭐</span>
         <span class="star" onclick="revealStar(1)">⭐</span>
         <span class="star" onclick="revealStar(2)">⭐</span>
@@ -88,19 +94,15 @@
                     clearInterval(countdownInterval);
                     document.getElementById("countdown").style.display = "none";
                     document.getElementById("statusText").innerText = "Coordinates Received!";
-                    document.getElementById("coordinates").style.display = "block";
+                    document.getElementById("coordinates").style.opacity = "1";
                     
                     setTimeout(() => {
+                        document.body.style.background = "url('psychedelic-background.jpg') no-repeat center center fixed";
+                        document.body.style.backgroundSize = "cover";
                         document.getElementById("coordinates").style.opacity = "0";
-                        setTimeout(() => {
-                            document.getElementById("coordinates").style.display = "none";
-                            document.getElementById("statusText").innerText = "Click the stars to decrypt the message:";
-                            document.querySelector(".stars-container").style.display = "block";
-
-                            // CHANGE BACKGROUND AFTER COORDINATES RECEIVED
-                            document.body.style.background = "url('psychedelic-background.jpg') no-repeat center center fixed";
-                            document.body.style.backgroundSize = "cover";
-                        }, 1000);
+                        document.getElementById("coordinates").style.display = "none";
+                        document.getElementById("statusText").innerText = "";
+                        document.querySelector(".stars-container").style.display = "block";
                     }, 3000);
                 }
             }, 1000);
