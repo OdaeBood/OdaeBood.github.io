@@ -136,4 +136,27 @@
             if (e.key === "ArrowRight") player.dx = player.speed;
             if (e.key === "ArrowLeft") player.dx = -player.speed;
             if (e.key === "ArrowUp") player.dy = -player.speed;
-            if (e.key === "ArrowDown") player.dy = player
+            if (e.key === "ArrowDown") player.dy = player.speed;
+        }
+
+        function keyUp(e) {
+            if (e.key === "ArrowRight" || e.key === "ArrowLeft") player.dx = 0;
+            if (e.key === "ArrowUp" || e.key === "ArrowDown") player.dy = 0;
+        }
+
+        window.addEventListener("keydown", keyDown);
+        window.addEventListener("keyup", keyUp);
+
+        spawnVinyls();
+
+        // Start game **only after images load**
+        backgroundImage.onload = () => {
+            playerImage.onload = () => {
+                vinylImage.onload = () => {
+                    loop();
+                };
+            };
+        };
+    </script>
+</body>
+</html>
