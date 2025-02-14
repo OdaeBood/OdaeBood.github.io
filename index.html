@@ -86,18 +86,6 @@
             height: 100vh;
             z-index: 10;
         }
-        .game-container {
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: url('game-background.jpg') no-repeat center center;
-            background-size: cover;
-        }
-        canvas {
-            border: 2px solid white;
-        }
     </style>
 </head>
 <body>
@@ -120,21 +108,6 @@
         <p id="typing-text" class="typing"></p>
     </div>
 
-    <div id="quiz-section" class="text-box hidden">
-        <h2>Cosmic Compatibility Test</h2>
-        <p id="quiz-question"></p>
-        <div class="options" id="options-container"></div>
-    </div>
-
-    <div id="role-section" class="text-box hidden">
-        <h2>Congratulations!</h2>
-        <p id="role-text"></p>
-        <p id="nickname-text"></p>
-        <p>We've set course for <strong>Planet Ambrosia</strong>. A world of celestial melodies and harmonic wonders.</p>
-        <p>Are you ready to embark on the next phase of your journey?</p>
-        <button onclick="activateHyperdrive()" class="option">🚀 Let's go!</button>
-    </div>
-
     <script>
         let countdown = 10;
         const countdownElement = document.getElementById("countdown");
@@ -142,12 +115,7 @@
         const coordinatesSection = document.getElementById("coordinates-section");
         const transitionSection = document.getElementById("transition-section");
         const transmissionSection = document.getElementById("transmission-section");
-        const quizSection = document.getElementById("quiz-section");
-        const roleSection = document.getElementById("role-section");
-        const quizQuestion = document.getElementById("quiz-question");
-        const optionsContainer = document.getElementById("options-container");
-        const roleText = document.getElementById("role-text");
-        const nicknameText = document.getElementById("nickname-text");
+        const typingText = document.getElementById("typing-text");
         const gifBackground = document.getElementById("gif-background");
 
         function startCountdown() {
@@ -178,84 +146,15 @@
             }, 1000);
         }
 
-        function activateHyperdrive() {
-            roleSection.classList.add("hidden");
-            transitionSection.classList.remove("hidden");
+        const message = "Hi Delah, this is the captain speaking. We are currently travelling at light speed towards our destination. Why don't we burn some time along the way?";
+        let currentIndex = 0;
 
-            setTimeout(() => {
-                transitionSection.classList.add("hidden");
-                startGame();
-            }, 4000);
-        }
-
-        function startGame() {
-            document.body.innerHTML = `
-                <div class="game-container">
-                    <canvas id="gameCanvas" width="800" height="600"></canvas>
-                </div>`;
-            initializeGame();
-        }
-
-        function initializeGame() {
-            let gameCanvas = document.getElementById("gameCanvas");
-            let ctx = gameCanvas.getContext("2d");
-
-            let player = { x: 400, y: 500, width: 50, height: 50, speed: 5 };
-            let records = [];
-            let score = 0;
-
-            function createRecords() {
-                for (let i = 0; i < 10; i++) {
-                    records.push({
-                        x: Math.random() * 750,
-                        y: Math.random() * 550,
-                        width: 20,
-                        height: 20
-                    });
-                }
+        function typeMessage() {
+            if (currentIndex < message.length) {
+                typingText.innerHTML += message[currentIndex];
+                currentIndex++;
+                setTimeout(typeMessage, 50);
             }
-
-            function draw() {
-                ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-                ctx.fillStyle = "blue";
-                ctx.fillRect(player.x, player.y, player.width, player.height);
-
-                ctx.fillStyle = "yellow";
-                records.forEach(record => {
-                    ctx.fillRect(record.x, record.y, record.width, record.height);
-                });
-
-                ctx.fillStyle = "white";
-                ctx.fillText("Score: " + score, 10, 20);
-            }
-
-            function update() {
-                document.addEventListener("keydown", function (event) {
-                    if (event.key === "ArrowLeft") player.x -= player.speed;
-                    if (event.key === "ArrowRight") player.x += player.speed;
-                    if (event.key === "ArrowUp") player.y -= player.speed;
-                    if (event.key === "ArrowDown") player.y += player.speed;
-                });
-
-                records = records.filter(record => {
-                    if (player.x < record.x + record.width &&
-                        player.x + player.width > record.x &&
-                        player.y < record.y + record.height &&
-                        player.y + player.height > record.y) {
-                        score++;
-                        return false;
-                    }
-                    return true;
-                });
-
-                if (score >= 10) alert("Mission complete!");
-            }
-
-            createRecords();
-            setInterval(() => {
-                update();
-                draw();
-            }, 1000 / 30);
         }
 
         startCountdown();
