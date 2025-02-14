@@ -27,6 +27,7 @@
                 visibility: hidden;
             }
         }
+        /* Fix background image handling for GIF */
         .background {
             position: fixed;
             top: 0;
@@ -41,7 +42,6 @@
             background: rgba(0, 0, 0, 0.6);
             padding: 20px;
             border-radius: 10px;
-            display: inline-block;
         }
         .stars {
             display: flex;
@@ -63,22 +63,13 @@
             height: 100vh;
             z-index: 10;
         }
-        /* Game Styling */
-        #game-container {
-            position: relative;
-            width: 600px;
-            margin: auto;
-        }
+        /* Game Canvas */
         canvas {
             background: url('space-background.jpg') no-repeat center center;
             background-size: cover;
             display: block;
             margin: auto;
             border: 2px solid white;
-        }
-        #message {
-            font-size: 20px;
-            margin-top: 10px;
         }
     </style>
 </head>
@@ -90,7 +81,7 @@
 
     <div id="coordinates-section" class="hidden">
         <h1 class="blink">Coordinates Received!</h1>
-        <p>Galaxy: Ambrosia | Sector 7B | Vector 42</p>
+        <p>Galaxy: Andromeda | Sector 7B | Vector 42</p>
     </div>
 
     <div id="transition-section" class="hidden transition"></div>
@@ -98,18 +89,16 @@
     <div id="decrypt-section" class="hidden">
         <div class="background"></div>
         <div class="text-box">
-            <h1>Incoming Transmission</h1>
-            <p id="transmission-text"></p>
+            <h1>Incoming Transmission...</h1>
+            <p id="typing-text"></p>
         </div>
     </div>
 
     <div id="game-section" class="hidden">
         <h1>Planet Ambrosia: Vinyl Collector</h1>
         <p>Catch 10 vinyl records to win!</p>
-        <div id="game-container">
-            <canvas id="gameCanvas" width="600" height="400"></canvas>
-            <p id="message">Score: 0</p>
-        </div>
+        <canvas id="gameCanvas" width="600" height="400"></canvas>
+        <p id="message">Score: 0</p>
     </div>
 
     <script>
@@ -120,6 +109,7 @@
         const transitionSection = document.getElementById("transition-section");
         const decryptSection = document.getElementById("decrypt-section");
         const gameSection = document.getElementById("game-section");
+        const typingText = document.getElementById("typing-text");
 
         function startCountdown() {
             const interval = setInterval(() => {
@@ -139,7 +129,7 @@
                                 setTimeout(() => {
                                     transitionSection.classList.add("hidden");
                                     decryptSection.classList.remove("hidden");
-                                    startTransmission();
+                                    startTyping();
                                 }, 4000);
                             }, 2000);
                         }, 4000);
@@ -148,21 +138,22 @@
             }, 1000);
         }
 
-        function startTransmission() {
-            const message = "Hi Delah, this is the captain speaking. We are currently travelling at light speed towards our destination. Why don't we burn some time along the way...";
+        function startTyping() {
+            let text = "Hi Delah, this is the captain speaking. We are currently traveling at light speed towards our destination. Why don't we burn some time along the way?";
             let index = 0;
-            const textElement = document.getElementById("transmission-text");
-
             function typeWriter() {
-                if (index < message.length) {
-                    textElement.innerHTML += message.charAt(index);
+                if (index < text.length) {
+                    typingText.innerHTML += text.charAt(index);
                     index++;
                     setTimeout(typeWriter, 50);
                 } else {
                     setTimeout(() => {
-                        decryptSection.classList.add("hidden");
-                        gameSection.classList.remove("hidden");
-                        startGame();
+                        decryptSection.classList.add("fade-out");
+                        setTimeout(() => {
+                            decryptSection.classList.add("hidden");
+                            gameSection.classList.remove("hidden");
+                            startGame();
+                        }, 2000);
                     }, 2000);
                 }
             }
@@ -172,22 +163,14 @@
         function startGame() {
             const canvas = document.getElementById("gameCanvas");
             const ctx = canvas.getContext("2d");
-
-            let player = {
-                x: 275,
-                y: 350,
-                width: 50,
-                height: 50,
-                image: new Image()
-            };
-            player.image.src = 'mario-character.png'; // Upload this file to GitHub
-
+            let player = { x: 275, y: 350, width: 50, height: 50, sprite: new Image() };
+            player.sprite.src = "player-character.png"; // Upload a pixel-art sprite for the player
             let records = [];
             let score = 0;
             let gameRunning = true;
 
             function drawPlayer() {
-                ctx.drawImage(player.image, player.x, player.y, player.width, player.height);
+                ctx.drawImage(player.sprite, player.x, player.y, player.width, player.height);
             }
 
             function drawRecords() {
