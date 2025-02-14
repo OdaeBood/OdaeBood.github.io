@@ -13,21 +13,22 @@
         canvas {
             display: block;
         }
-        /* Pop-up Instructions */
+        /* Overlay Pop-up Instructions */
         .overlay {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             width: 400px;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.8);
             color: white;
             text-align: center;
             padding: 20px;
             border: 2px solid white;
-            z-index: 100;
+            z-index: 10;
             display: flex;
             flex-direction: column;
+            box-shadow: 0 0 10px white;
         }
         .start-btn {
             background: white;
@@ -41,12 +42,12 @@
     </style>
 </head>
 <body>
-    <!-- Instruction Popup -->
+    <!-- Instruction Popup (Overlay on Game Screen) -->
     <div class="overlay" id="instructions">
-        <h2>Welcome to the Vinyl Collection Quest!</h2>
-        <p>🎶 **Collect 10 vinyl records** to complete your mission.</p>
-        <p>🏆 **Avoid the Grammy awards**—getting hit by one ends the game!</p>
-        <p>⬅️➡️ **Move using Arrow Keys**</p>
+        <h2>Welcome to the Vinyl Collection Quest! 🎶</h2>
+        <p>🎯 **Collect 10 vinyl records** to complete your mission.</p>
+        <p>⚠️ **Avoid the Grammy awards**—getting hit by one ends the game!</p>
+        <p>🎮 **Use Left & Right Arrow Keys to Move**</p>
         <button class="start-btn" onclick="startGame()">Start Game</button>
     </div>
 
@@ -149,11 +150,11 @@
                         items.splice(index, 1);
                         if (score >= 10) {
                             alert("🎉 You collected all the vinyls! Mission Complete!");
-                            document.location.reload();
+                            restartGame();
                         }
                     } else if (item.type === "grammy") {
                         alert("💀 You got hit by a Grammy! Game Over.");
-                        document.location.reload();
+                        restartGame();
                     }
                 }
             });
@@ -182,8 +183,15 @@
 
         function startGame() {
             document.getElementById("instructions").style.display = "none"; // Remove popup
-            setInterval(spawnItem, 600); // Spawn items every 0.6 seconds (faster pace)
+            items = []; // Reset items
+            score = 0; // Reset score
+            gameOver = false;
+            setInterval(spawnItem, 600); // Spawn items every 0.6 seconds
             loop();
+        }
+
+        function restartGame() {
+            document.getElementById("instructions").style.display = "flex"; // Show popup again
         }
     </script>
 </body>
