@@ -68,7 +68,7 @@
         <p>🎯 <strong>Collect 10 vinyl records</strong> to complete your mission.</p>
         <p>⚠️ <strong>Avoid the Grammy awards</strong>—getting hit by one ends the game!</p>
         <p>🎮 <strong>Use Left & Right Arrow Keys to Move</strong></p>
-        <p>🔫 <strong>Press Spacebar to Shoot</strong> and destroy Grammys!</p>
+        <p>🔫 <strong>Press Spacebar to Shoot & Destroy Grammys!</strong></p>
         <button class="btn" onclick="startGame()">Start Game</button>
     </div>
 
@@ -95,14 +95,14 @@
         vinylImage.src = "vinyl.png"; 
         grammyImage.src = "grammy.png"; 
         backgroundImage.src = "space-background.gif"; 
-        beamImage.src = "beam.png"; // Upload this to GitHub (or replace with a color-based rectangle)
+        beamImage.src = "beam.png"; // Upload beam image to GitHub
 
         let gameRunning = false;
         let score = 0;
         let items = [];
         let beams = [];
         let spawnInterval;
-        
+
         class Player {
             constructor() {
                 this.width = 50;
@@ -142,14 +142,13 @@
         class Beam {
             constructor(x) {
                 this.width = 10;
-                this.height = 20;
-                this.x = x + 20; // Center of player
+                this.height = 30;
+                this.x = x + 20;
                 this.y = canvas.height - 100;
-                this.speed = 10;
+                this.speed = 8;
             }
             draw() {
-                ctx.fillStyle = "cyan"; // Bright laser color
-                ctx.fillRect(this.x, this.y, this.width, this.height);
+                ctx.drawImage(beamImage, this.x, this.y, this.width, this.height);
             }
             update() {
                 this.y -= this.speed;
@@ -182,23 +181,22 @@
             items.forEach(item => item.update());
             beams.forEach(beam => beam.update());
 
-            // Beam & Grammy Collision
-            beams.forEach((beam, bIndex) => {
-                items.forEach((item, iIndex) => {
+            // Check for collisions with beams and grammys
+            beams.forEach((beam, beamIndex) => {
+                items.forEach((item, itemIndex) => {
                     if (
+                        item.type === "grammy" &&
                         beam.x < item.x + item.width &&
                         beam.x + beam.width > item.x &&
                         beam.y < item.y + item.height &&
-                        beam.y + beam.height > item.y &&
-                        item.type === "grammy"
+                        beam.y + beam.height > item.y
                     ) {
-                        items.splice(iIndex, 1); // Destroy Grammy
-                        beams.splice(bIndex, 1); // Remove beam
+                        items.splice(itemIndex, 1); // Remove Grammy
+                        beams.splice(beamIndex, 1); // Remove Beam
                     }
                 });
             });
 
-            // Player Collision
             items.forEach((item, index) => {
                 if (
                     player.x < item.x + item.width &&
@@ -210,21 +208,24 @@
                         score++;
                         items.splice(index, 1);
                         if (score >= 10) {
-                            document.getElementById("gameOverScreen").innerHTML = "<h2>🎉 Mission Complete!</h2><p>You collected all 10 vinyls!</p><button class='btn' onclick='restartGame()'>Play Again</button>";
-                            document.getElementById("gameOverScreen").style.display = "block";
-                            gameRunning = false;
-                            clearInterval(spawnInterval);
+                            setTimeout(() => {
+                                document.getElementById("gameOverScreen").innerHTML = "<h2>🎉 Mission Complete!</h2><p>You collected all 10 vinyls!</p><button class='btn' onclick='restartGame()'>Play Again</button>";
+                                document.getElementById("gameOverScreen").style.display = "block";
+                                gameRunning = false;
+                                clearInterval(spawnInterval);
+                            }, 500);
                         }
                     } else {
                         gameRunning = false;
                         clearInterval(spawnInterval);
-                        document.getElementById("gameOverScreen").style.display = "block";
+                        setTimeout(() => {
+                            document.getElementById("gameOverScreen").style.display = "block";
+                        }, 300);
                     }
                 }
             });
 
             items = items.filter(item => item.y < canvas.height);
-            beams = beams.filter(beam => beam.y > 0);
         }
 
         function loop() {
@@ -247,6 +248,10 @@
 
         window.addEventListener("keydown", keyDown);
         window.addEventListener("keyup", keyUp);
+
+        backgroundImage.onload = function() {
+            draw();
+        };
     </script>
 </body>
 </html>
