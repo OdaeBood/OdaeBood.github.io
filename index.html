@@ -3,136 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Space Adventure Game</title>
+    <title>Decrypting Coordinates</title>
     <style>
         body {
             background-color: black;
             color: white;
             font-family: Arial, sans-serif;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             overflow: hidden;
-            margin: 0;
-            padding: 0;
         }
-        
-        /* Hyperdrive Transition */
-        #hyperdrive-transition {
+        .hidden {
+            display: none;
+        }
+        .fade-out {
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+        }
+        .blink {
+            animation: blink-animation 1s steps(2, start) infinite;
+        }
+        @keyframes blink-animation {
+            to {
+                visibility: hidden;
+            }
+        }
+        .background {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
+            background: url('psychedelic-bg.gif') no-repeat center center fixed;
+            background-size: cover;
+            z-index: -1;
+        }
+        .text-box {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border: 3px solid white;
+            width: 80%;
+            max-width: 600px;
+            text-align: left;
+            font-size: 1.2rem;
+            position: relative;
+        }
+        .typing {
+            white-space: pre-wrap;
+            overflow: hidden;
+            display: inline-block;
+        }
+        .options {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .option {
+            padding: 10px;
+            border: 2px solid white;
+            background: none;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .option:hover {
+            background: white;
+            color: black;
+        }
+        .transition {
             background: url('hyperdrive-transition.gif') no-repeat center center;
             background-size: cover;
-            display: none;
-            z-index: 100;
-        }
-
-        /* Game Canvas */
-        canvas {
-            display: none;
-            background: url('space-planet.gif') no-repeat center center;
-            background-size: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
         }
     </style>
 </head>
 <body>
-    <!-- Hyperdrive Effect -->
-    <div id="hyperdrive-transition"></div>
+    <div id="countdown-section">
+        <h1>Awaiting Coordinates...</h1>
+        <h2 id="countdown">10</h2>
+    </div>
 
-    <!-- Game Canvas -->
-    <canvas id="gameCanvas"></canvas>
+    <div id="coordinates-section" class="hidden">
+        <h1 class="blink">Coordinates Received!</h1>
+        <p>Galaxy: Andromeda | Sector 7B | Vector 42</p>
+    </div>
+
+    <div id="transition-section" class="hidden transition"></div>
+
+    <div class="background hidden" id="gif-background"></div>
+
+    <div id="transmission-section" class="text-box hidden">
+        <h2>Incoming Transmission...</h2>
+        <p id="typing-text" class="typing"></p>
+    </div>
+
+    <div id="quiz-section" class="text-box hidden">
+        <h2>Cosmic Compatibility Test</h2>
+        <p id="quiz-question"></p>
+        <div class="options" id="options-container"></div>
+    </div>
+
+    <div id="role-section" class="text-box hidden">
+        <h2>Congratulations!</h2>
+        <p id="role-text"></p>
+        <p id="nickname-text"></p>
+        <p>We've set course for <strong>Planet Ambrosia</strong>. A world of celestial melodies and harmonic wonders.</p>
+        <p>Are you ready to embark on the next phase of your journey?</p>
+        <button onclick="startGame()" class="option">🚀 Let's go!</button>
+    </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            let gameStarted = false;
-            
-            // Handle "Let's go!" button click (from previous section)
-            function activateHyperdrive() {
-                const hyperdrive = document.getElementById("hyperdrive-transition");
-                hyperdrive.style.display = "block";
+        let countdown = 10;
+        const countdownElement = document.getElementById("countdown");
+        const countdownSection = document.getElementById("countdown-section");
+        const coordinatesSection = document.getElementById("coordinates-section");
+        const transitionSection = document.getElementById("transition-section");
+        const transmissionSection = document.getElementById("transmission-section");
+        const quizSection = document.getElementById("quiz-section");
+        const roleSection = document.getElementById("role-section");
+        const quizQuestion = document.getElementById("quiz-question");
+        const optionsContainer = document.getElementById("options-container");
+        const roleText = document.getElementById("role-text");
+        const nicknameText = document.getElementById("nickname-text");
+        const gifBackground = document.getElementById("gif-background");
 
-                // Wait for hyperdrive effect, then start game
-                setTimeout(() => {
-                    hyperdrive.style.display = "none";
-                    startGame();
-                }, 4000); // 4-second hyperdrive transition
+        function startCountdown() {
+            const interval = setInterval(() => {
+                countdown--;
+                countdownElement.innerText = countdown;
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    countdownSection.classList.add("fade-out");
+                    setTimeout(() => {
+                        countdownSection.classList.add("hidden");
+                        coordinatesSection.classList.remove("hidden");
+                        setTimeout(() => {
+                            coordinatesSection.classList.add("fade-out");
+                            setTimeout(() => {
+                                coordinatesSection.classList.add("hidden");
+                                transitionSection.classList.remove("hidden");
+                                setTimeout(() => {
+                                    transitionSection.classList.add("hidden");
+                                    gifBackground.classList.remove("hidden");
+                                    transmissionSection.classList.remove("hidden");
+                                    typeMessage();
+                                }, 4000);
+                            }, 2000);
+                        }, 4000);
+                    }, 2000);
+                }
+            }, 1000);
+        }
+
+        const message = "Hi Delah, this is the captain speaking. We are currently travelling at light speed towards our destination. Why don't we burn some time along the way?";
+        const typingText = document.getElementById("typing-text");
+        let currentIndex = 0;
+
+        function typeMessage() {
+            if (currentIndex < message.length) {
+                typingText.innerHTML += message[currentIndex];
+                currentIndex++;
+                setTimeout(typeMessage, 50);
+            } else {
+                setTimeout(startQuiz, 2000);
             }
+        }
 
-            // Start the game
-            function startGame() {
-                gameStarted = true;
-                const canvas = document.getElementById("gameCanvas");
-                canvas.style.display = "block";
-                const ctx = canvas.getContext("2d");
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
+        const quizData = [
+            { question: "Which celestial body fascinates you the most?", options: ["A Black Hole", "A Distant Galaxy", "The Moon"], answers: ["Navigator", "Engineer", "Communications Officer"] },
+            { question: "If you were given command, how would you lead?", options: ["With Precise Calculations", "With Innovative Ideas", "With Motivational Speeches"], answers: ["Captain", "Scientist", "Diplomat"] },
+            { question: "In the event of an alien encounter, what is your first response?", options: ["Observe from a distance", "Attempt communication", "Prepare for battle"], answers: ["Explorer", "Linguist", "Defender"] }
+        ];
 
-                let player = { x: canvas.width / 2, y: canvas.height - 100, width: 50, height: 50, speed: 5 };
-                let records = [];
-                let score = 0;
+        let questionIndex = 0;
+        let chosenRoles = [];
 
-                // Create records (vinyls)
-                function spawnRecord() {
-                    let record = { x: Math.random() * canvas.width, y: 0, width: 30, height: 30, speed: 3 };
-                    records.push(record);
-                }
+        function startQuiz() {
+            transmissionSection.classList.add("hidden");
+            quizSection.classList.remove("hidden");
+            showQuestion();
+        }
 
-                // Move and draw player
-                function drawPlayer() {
-                    ctx.fillStyle = "white";
-                    ctx.fillRect(player.x, player.y, player.width, player.height);
-                }
+        function showQuestion() {
+            if (questionIndex < quizData.length) {
+                const data = quizData[questionIndex];
+                quizQuestion.innerText = data.question;
+                optionsContainer.innerHTML = "";
 
-                // Move and draw records
-                function drawRecords() {
-                    ctx.fillStyle = "gold";
-                    records.forEach((record, index) => {
-                        record.y += record.speed;
-                        ctx.fillRect(record.x, record.y, record.width, record.height);
-
-                        // Check collision
-                        if (record.y + record.height > player.y && record.x > player.x && record.x < player.x + player.width) {
-                            score++;
-                            records.splice(index, 1);
-                        }
-                    });
-                }
-
-                // Game loop
-                function gameLoop() {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    drawPlayer();
-                    drawRecords();
-                    ctx.fillStyle = "white";
-                    ctx.fillText("Vinyls Collected: " + score, 20, 30);
-
-                    if (score < 10) {
-                        requestAnimationFrame(gameLoop);
-                    } else {
-                        endGame();
-                    }
-                }
-
-                // End game
-                function endGame() {
-                    alert("Congratulations! You've collected all 10 vinyl records!");
-                }
-
-                // Player movement
-                document.addEventListener("keydown", function (event) {
-                    if (event.key === "ArrowLeft" && player.x > 0) player.x -= player.speed;
-                    if (event.key === "ArrowRight" && player.x < canvas.width - player.width) player.x += player.speed;
+                data.options.forEach((option, i) => {
+                    const btn = document.createElement("button");
+                    btn.classList.add("option");
+                    btn.innerText = option;
+                    btn.onclick = () => {
+                        chosenRoles.push(data.answers[i]);
+                        questionIndex++;
+                        showQuestion();
+                    };
+                    optionsContainer.appendChild(btn);
                 });
-
-                // Spawn records and start game loop
-                setInterval(spawnRecord, 1000);
-                gameLoop();
+            } else {
+                assignRole();
             }
+        }
 
-            // Attach function to button click
-            window.activateHyperdrive = activateHyperdrive;
-        });
+        function assignRole() {
+            quizSection.classList.add("hidden");
+            roleSection.classList.remove("hidden");
+            roleText.innerText = `Your role on the ship is: ${chosenRoles[0]}!`;
+            nicknameText.innerText = `The crew has given you the nickname: "Ms. Calypso" for your raw talent and unwavering passion for music.`;
+        }
+
+        function startGame() {
+            window.location.href = "game.html";
+        }
+
+        startCountdown();
     </script>
 </body>
 </html>
