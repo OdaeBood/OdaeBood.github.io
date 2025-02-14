@@ -56,7 +56,7 @@
         <p>🎯 <strong>Collect 10 Grammys</strong> to complete your mission.</p>
         <p>⚠️ <strong>Avoid the haters </strong>—getting hit by one ends the game!</p>
         <p>🎮 <strong>Use Left & Right Arrow Keys to Move</strong></p>
-        <p>💥 <strong>Press Spacebar to Shoot & Destroy Grammys!</strong></p>
+        <p>💥 <strong>Press Spacebar to Destroy Haters!</strong></p>
         <button class="btn" onclick="startGame()">Start Game</button>
     </div>
 
@@ -161,7 +161,7 @@
             // Display Score
             ctx.fillStyle = "white";
             ctx.font = "20px Arial";
-            ctx.fillText(`Vinyls Collected: ${score}/10`, 20, 30);
+            ctx.fillText(`Grammys Collected: ${score}/10`, 20, 30);
         }
 
         function update() {
@@ -184,11 +184,11 @@
                         items.splice(index, 1);
                         if (score >= 10) {
                             gameOver = true;
-                            endGame("🎉 You collected all 10 vinyls! Mission Complete!");
+                            endGame("🎉 You collected all 10 Grammys! Mission Complete!");
                         }
                     } else if (item.type === "grammy") {
                         gameOver = true;
-                        endGame("💀 You got hit by a Grammy! Game Over.");
+                        endGame("💀 You got hit by a Hater! Game Over.");
                     }
                 }
             });
