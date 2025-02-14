@@ -8,7 +8,12 @@
         body {
             margin: 0;
             overflow: hidden;
-            background: url('space-background.jpg') no-repeat center center fixed; /* STATIC IMAGE */
+        }
+        #gameContainer {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            background: url('space-background.jpg') no-repeat center center fixed;
             background-size: cover;
         }
         canvas {
@@ -75,27 +80,30 @@
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
 
-    <!-- Instruction Popup -->
-    <div id="instructions" class="popup">
-        <h2>Welcome to the Vinyl Collection Quest! 🎶</h2>
-        <p>🎯 <strong>Collect 10 vinyl records</strong> to complete your mission.</p>
-        <p>⚠️ <strong>Avoid the Grammy awards</strong>—getting hit by one ends the game!</p>
-        <p>🎮 <strong>Use Left & Right Arrow Keys to Move</strong></p>
-        <button onclick="startGame()">Start Game</button>
-    </div>
+        <!-- Instruction Popup -->
+        <div id="instructions" class="popup">
+            <h2>Welcome to the Vinyl Collection Quest! 🎶</h2>
+            <p>🎯 <strong>Collect 10 vinyl records</strong> to complete your mission.</p>
+            <p>⚠️ <strong>Avoid the Grammy awards</strong>—getting hit by one ends the game!</p>
+            <p>🎮 <strong>Use Left & Right Arrow Keys to Move</strong></p>
+            <button onclick="startGame()">Start Game</button>
+        </div>
 
-    <!-- Game Over Popup -->
-    <div id="gameOverScreen" class="game-over">
-        <h2>Game Over! 💀</h2>
-        <p>You got hit by a Grammy!</p>
-        <button onclick="restartGame()">Try Again</button>
+        <!-- Game Over Popup -->
+        <div id="gameOverScreen" class="game-over">
+            <h2>Game Over! 💀</h2>
+            <p>You got hit by a Grammy!</p>
+            <button onclick="restartGame()">Try Again</button>
+        </div>
     </div>
 
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
+        const gameContainer = document.getElementById("gameContainer");
 
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -105,10 +113,10 @@
         let grammyImage = new Image();
         let backgroundImage = new Image();
 
-        playerImage.src = "spaceship.png"; // Upload this to GitHub
-        vinylImage.src = "vinyl.png"; // Upload this to GitHub
-        grammyImage.src = "grammy.png"; // Upload this to GitHub
-        backgroundImage.src = "space-background.jpg"; // STATIC IMAGE
+        playerImage.src = "spaceship.png"; 
+        vinylImage.src = "vinyl.png"; 
+        grammyImage.src = "grammy.png"; 
+        backgroundImage.src = "space-background.jpg"; 
 
         class Player {
             constructor() {
@@ -135,7 +143,7 @@
                 this.height = 30;
                 this.x = Math.random() * (canvas.width - this.width);
                 this.y = -30;
-                this.speed = 6 + Math.random() * 2; // Falling speed increased
+                this.speed = 6 + Math.random() * 2; 
                 this.type = type;
                 this.image = type === "vinyl" ? vinylImage : grammyImage;
             }
@@ -155,7 +163,7 @@
 
         function spawnObjects() {
             setInterval(() => {
-                let type = Math.random() > 0.75 ? "vinyl" : "grammy"; // More Grammys, fewer Vinyls
+                let type = Math.random() > 0.75 ? "vinyl" : "grammy"; 
                 fallingObjects.push(new FallingObject(type));
             }, 500);
         }
@@ -174,7 +182,6 @@
                     fallingObjects.splice(index, 1);
                 }
 
-                // Collision detection
                 if (
                     player.x < obj.x + obj.width &&
                     player.x + player.width > obj.x &&
