@@ -220,4 +220,16 @@
         }
 
         function restartGame() {
-            document.getElementById("ga
+            document.getElementById("gameOverScreen").style.display = "none";
+            document.getElementById("instructions").style.display = "flex"; // Show pop-up again
+        }
+
+        window.addEventListener("keydown", keyDown);
+        window.addEventListener("keyup", keyUp);
+
+        backgroundImage.onload = function() {
+            draw();
+        };
+    </script>
+</body>
+</html>
