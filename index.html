@@ -69,27 +69,6 @@
             z-index: 10;
         }
 
-        /* Game Styles */
-        #game-container {
-            position: relative;
-            width: 800px;
-            height: 500px;
-            background: url('space-planet.gif') no-repeat center center;
-            background-size: cover;
-            overflow: hidden;
-        }
-        .vinyl {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-        }
-        .player {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            bottom: 20px;
-            left: 375px;
-        }
     </style>
 </head>
 <body>
@@ -126,12 +105,6 @@
         <button onclick="activateHyperdrive()" class="option">🚀 Let's go!</button>
     </div>
 
-    <div id="game-container" class="hidden">
-        <h2>Collect 10 Vinyl Records!</h2>
-        <p>Use arrow keys to move</p>
-        <img src="player.png" id="player" class="player">
-    </div>
-
     <script>
         let countdown = 10;
         const countdownElement = document.getElementById("countdown");
@@ -141,7 +114,11 @@
         const transmissionSection = document.getElementById("transmission-section");
         const quizSection = document.getElementById("quiz-section");
         const roleSection = document.getElementById("role-section");
-        const gameContainer = document.getElementById("game-container");
+        const quizQuestion = document.getElementById("quiz-question");
+        const optionsContainer = document.getElementById("options-container");
+        const roleText = document.getElementById("role-text");
+        const nicknameText = document.getElementById("nickname-text");
+        const gifBackground = document.getElementById("gif-background");
 
         function startCountdown() {
             const interval = setInterval(() => {
@@ -160,6 +137,7 @@
                                 transitionSection.classList.remove("hidden");
                                 setTimeout(() => {
                                     transitionSection.classList.add("hidden");
+                                    gifBackground.classList.remove("hidden");
                                     transmissionSection.classList.remove("hidden");
                                     typeMessage();
                                 }, 4000);
@@ -168,6 +146,66 @@
                     }, 2000);
                 }
             }, 1000);
+        }
+
+        const message = "Hi Delah, this is the captain speaking. We are currently travelling at light speed towards our destination. Why don't we burn some time along the way?";
+        const typingText = document.getElementById("typing-text");
+        let currentIndex = 0;
+
+        function typeMessage() {
+            if (currentIndex < message.length) {
+                typingText.innerHTML += message[currentIndex];
+                currentIndex++;
+                setTimeout(typeMessage, 50);
+            } else {
+                setTimeout(startQuiz, 2000);
+            }
+        }
+
+        const quizData = [
+            { question: "Which celestial body fascinates you the most?", options: ["A Black Hole", "A Distant Galaxy", "The Moon"], answers: ["Navigator", "Engineer", "Communications Officer"] },
+            { question: "If you were given command, how would you lead?", options: ["With Precise Calculations", "With Innovative Ideas", "With Motivational Speeches"], answers: ["Captain", "Scientist", "Diplomat"] },
+            { question: "In the event of an alien encounter, what is your first response?", options: ["Observe from a distance", "Attempt communication", "Prepare for battle"], answers: ["Explorer", "Linguist", "Defender"] }
+        ];
+
+        let questionIndex = 0;
+        let chosenRoles = [];
+
+        function startQuiz() {
+            transmissionSection.classList.add("hidden");
+            quizSection.classList.remove("hidden");
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (questionIndex < quizData.length) {
+                const data = quizData[questionIndex];
+                quizQuestion.innerText = data.question;
+                optionsContainer.innerHTML = "";
+
+                data.options.forEach((option, i) => {
+                    const btn = document.createElement("button");
+                    btn.classList.add("option");
+                    btn.innerText = option;
+                    btn.onclick = () => {
+                        chosenRoles.push(data.answers[i]);
+                        questionIndex++;
+                        if (questionIndex < quizData.length) {
+                            showQuestion();
+                        } else {
+                            assignRole();
+                        }
+                    };
+                    optionsContainer.appendChild(btn);
+                });
+            }
+        }
+
+        function assignRole() {
+            quizSection.classList.add("hidden");
+            roleSection.classList.remove("hidden");
+            roleText.innerText = `Your role on the ship is: ${chosenRoles[0]}!`;
+            nicknameText.innerText = `The crew has given you the nickname: "Ms. Calypso" for your raw talent and unwavering passion for music.`;
         }
 
         function activateHyperdrive() {
@@ -179,38 +217,7 @@
             }, 4000);
         }
 
-        function startGame() {
-            gameContainer.classList.remove("hidden");
-            spawnVinylRecords();
-        }
-
-        function spawnVinylRecords() {
-            for (let i = 0; i < 10; i++) {
-                let vinyl = document.createElement("img");
-                vinyl.src = "vinyl.png";
-                vinyl.classList.add("vinyl");
-                vinyl.style.top = Math.random() * 400 + "px";
-                vinyl.style.left = Math.random() * 750 + "px";
-                gameContainer.appendChild(vinyl);
-                vinyl.onclick = () => {
-                    vinyl.remove();
-                    checkWin();
-                };
-            }
-        }
-
-        function checkWin() {
-            if (document.querySelectorAll(".vinyl").length === 0) {
-                alert("You collected all the records! Mission success!");
-            }
-        }
-
-        document.addEventListener("keydown", (event) => {
-            let player = document.getElementById("player");
-            let left = parseInt(player.style.left || 375);
-            if (event.key === "ArrowLeft" && left > 0) player.style.left = left - 20 + "px";
-            if (event.key === "ArrowRight" && left < 750) player.style.left = left + 20 + "px";
-        });
+        function startGame() { window.location.href = "game.html"; }
 
         startCountdown();
     </script>
