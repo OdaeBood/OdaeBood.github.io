@@ -32,7 +32,6 @@
                 visibility: hidden;
             }
         }
-        /* Background GIF should stay throughout transmission & test */
         .background {
             position: fixed;
             top: 0;
@@ -77,7 +76,6 @@
             background: white;
             color: black;
         }
-        /* Hyperdrive Transition */
         .transition {
             background: url('hyperdrive-transition.gif') no-repeat center center;
             background-size: cover;
@@ -91,41 +89,38 @@
     </style>
 </head>
 <body>
-    <!-- Awaiting Coordinates Section -->
     <div id="countdown-section">
         <h1>Awaiting Coordinates...</h1>
         <h2 id="countdown">10</h2>
     </div>
 
-    <!-- Coordinates Received Section -->
     <div id="coordinates-section" class="hidden">
         <h1 class="blink">Coordinates Received!</h1>
         <p>Galaxy: Andromeda | Sector 7B | Vector 42</p>
     </div>
 
-    <!-- Hyperdrive Transition -->
     <div id="transition-section" class="hidden transition"></div>
 
-    <!-- Background GIF (Keeps it visible) -->
     <div class="background hidden" id="gif-background"></div>
 
-    <!-- Incoming Transmission Section -->
     <div id="transmission-section" class="text-box hidden">
         <h2>Incoming Transmission...</h2>
         <p id="typing-text" class="typing"></p>
     </div>
 
-    <!-- Quiz Section -->
     <div id="quiz-section" class="text-box hidden">
         <h2>Cosmic Compatibility Test</h2>
         <p id="quiz-question"></p>
         <div class="options" id="options-container"></div>
     </div>
 
-    <!-- Role Assignment Section -->
     <div id="role-section" class="text-box hidden">
         <h2>Congratulations!</h2>
         <p id="role-text"></p>
+        <p id="nickname-text"></p>
+        <p>We've set course for <strong>Planet Ambrosia</strong>. A world of celestial melodies and harmonic wonders.</p>
+        <p>Are you ready to embark on the next phase of your journey?</p>
+        <button onclick="startGame()" class="option">🚀 Let's go!</button>
     </div>
 
     <script>
@@ -140,6 +135,7 @@
         const quizQuestion = document.getElementById("quiz-question");
         const optionsContainer = document.getElementById("options-container");
         const roleText = document.getElementById("role-text");
+        const nicknameText = document.getElementById("nickname-text");
         const gifBackground = document.getElementById("gif-background");
 
         function startCountdown() {
@@ -159,10 +155,10 @@
                                 transitionSection.classList.remove("hidden");
                                 setTimeout(() => {
                                     transitionSection.classList.add("hidden");
-                                    gifBackground.classList.remove("hidden"); // Keep GIF visible
+                                    gifBackground.classList.remove("hidden");
                                     transmissionSection.classList.remove("hidden");
                                     typeMessage();
-                                }, 4000); // Show hyperdrive transition for 4 seconds
+                                }, 4000);
                             }, 2000);
                         }, 4000);
                     }, 2000);
@@ -185,7 +181,7 @@
         }
 
         const quizData = [
-            { question: "Which celestial body fascinates you the most?", options: ["A Black Hole", "A Distant Galaxy", "A Pulsar Star"], answers: ["Navigator", "Engineer", "Communications Officer"] },
+            { question: "Which celestial body fascinates you the most?", options: ["A Black Hole", "A Distant Galaxy", "The Moon"], answers: ["Navigator", "Engineer", "Communications Officer"] },
             { question: "If you were given command, how would you lead?", options: ["With Precise Calculations", "With Innovative Ideas", "With Motivational Speeches"], answers: ["Captain", "Scientist", "Diplomat"] },
             { question: "In the event of an alien encounter, what is your first response?", options: ["Observe from a distance", "Attempt communication", "Prepare for battle"], answers: ["Explorer", "Linguist", "Defender"] }
         ];
@@ -225,6 +221,11 @@
             quizSection.classList.add("hidden");
             roleSection.classList.remove("hidden");
             roleText.innerText = `Your role on the ship is: ${chosenRoles[0]}!`;
+            nicknameText.innerText = `The crew has given you the nickname: "Ms. Calypso" for your raw talent and unwavering passion for music.`;
+        }
+
+        function startGame() {
+            window.location.href = "game.html";
         }
 
         startCountdown();
