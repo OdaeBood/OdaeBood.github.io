@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Decrypting Coordinates</title>
+    <title>Incoming Transmission</title>
     <style>
         body {
             background-color: black;
@@ -20,19 +20,6 @@
         .hidden {
             display: none;
         }
-        .fade-out {
-            opacity: 0;
-            transition: opacity 2s ease-in-out;
-        }
-        .blink {
-            animation: blink-animation 1s steps(2, start) infinite;
-        }
-        @keyframes blink-animation {
-            to {
-                visibility: hidden;
-            }
-        }
-        /* Fix background image handling for GIF */
         .background {
             position: fixed;
             top: 0;
@@ -44,96 +31,154 @@
             z-index: -1;
         }
         .text-box {
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.8);
             padding: 20px;
-            border-radius: 10px;
+            border: 3px solid white;
+            width: 80%;
+            max-width: 600px;
+            text-align: left;
+            font-size: 1.2rem;
+            position: relative;
         }
-        .stars {
-            display: flex;
-            gap: 15px;
+        .typing {
+            white-space: pre-wrap;
+            overflow: hidden;
+            display: inline-block;
+        }
+        .options {
             margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
-        .star {
-            font-size: 40px;
+        .option {
+            padding: 10px;
+            border: 2px solid white;
+            background: none;
+            color: white;
+            font-size: 1rem;
             cursor: pointer;
-            color: gold;
+            transition: 0.3s;
         }
-        .transition {
-            background: url('hyperdrive-transition.gif') no-repeat center center;
-            background-size: cover;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 10;
+        .option:hover {
+            background: white;
+            color: black;
         }
     </style>
 </head>
 <body>
-    <div id="countdown-section">
-        <h1>Awaiting Coordinates...</h1>
-        <h2 id="countdown">10</h2>
+    <div class="background"></div>
+
+    <!-- Incoming Transmission Section -->
+    <div id="transmission-section" class="text-box hidden">
+        <h2>Incoming Transmission...</h2>
+        <p id="typing-text" class="typing"></p>
     </div>
 
-    <div id="coordinates-section" class="hidden">
-        <h1 class="blink">Coordinates Received!</h1>
-        <p>Galaxy: Andromeda | Sector 7B | Vector 42</p>
+    <!-- Quiz Section -->
+    <div id="quiz-section" class="text-box hidden">
+        <h2>Cosmic Compatibility Test</h2>
+        <p id="quiz-question"></p>
+        <div class="options" id="options-container"></div>
     </div>
 
-    <div id="transition-section" class="hidden transition"></div>
-
-    <div id="decrypt-section" class="hidden">
-        <div class="background"></div>
-        <div class="text-box">
-            <h1>Click the stars to decrypt the message:</h1>
-            <div class="stars">
-                <span class="star" onclick="decryptStar(1)">&#9733;</span>
-                <span class="star" onclick="decryptStar(2)">&#9733;</span>
-                <span class="star" onclick="decryptStar(3)">&#9733;</span>
-            </div>
-        </div>
+    <!-- Role Assignment Section -->
+    <div id="role-section" class="text-box hidden">
+        <h2>Congratulations!</h2>
+        <p id="role-text"></p>
     </div>
 
     <script>
-        let countdown = 10;
-        const countdownElement = document.getElementById("countdown");
-        const countdownSection = document.getElementById("countdown-section");
-        const coordinatesSection = document.getElementById("coordinates-section");
-        const transitionSection = document.getElementById("transition-section");
-        const decryptSection = document.getElementById("decrypt-section");
+        const message = "Hi Delah, this is the captain speaking. We are currently travelling at light speed towards our destination. Why don't we burn some time along the way?";
+        const typingText = document.getElementById("typing-text");
+        const transmissionSection = document.getElementById("transmission-section");
+        const quizSection = document.getElementById("quiz-section");
+        const roleSection = document.getElementById("role-section");
+        const quizQuestion = document.getElementById("quiz-question");
+        const optionsContainer = document.getElementById("options-container");
+        const roleText = document.getElementById("role-text");
 
-        function startCountdown() {
-            const interval = setInterval(() => {
-                countdown--;
-                countdownElement.innerText = countdown;
-                if (countdown <= 0) {
-                    clearInterval(interval);
-                    countdownSection.classList.add("fade-out");
-                    setTimeout(() => {
-                        countdownSection.classList.add("hidden");
-                        coordinatesSection.classList.remove("hidden");
-                        setTimeout(() => {
-                            coordinatesSection.classList.add("fade-out");
-                            setTimeout(() => {
-                                coordinatesSection.classList.add("hidden");
-                                transitionSection.classList.remove("hidden");
-                                setTimeout(() => {
-                                    transitionSection.classList.add("hidden");
-                                    decryptSection.classList.remove("hidden");
-                                }, 4000); // Show transition GIF for 4 seconds
-                            }, 2000);
-                        }, 4000);
-                    }, 2000);
-                }
-            }, 1000);
-        }
-        
-        function decryptStar(index) {
-            document.querySelectorAll(".star")[index - 1].style.color = "white";
+        let currentIndex = 0;
+
+        function typeMessage() {
+            if (currentIndex < message.length) {
+                typingText.innerHTML += message[currentIndex];
+                currentIndex++;
+                setTimeout(typeMessage, 50); // Adjust typing speed
+            } else {
+                setTimeout(startQuiz, 2000); // Start quiz after message
+            }
         }
 
-        startCountdown();
+        // Quiz Data
+        const quizData = [
+            {
+                question: "Which celestial body fascinates you the most?",
+                options: ["A Black Hole", "A Distant Galaxy", "A Pulsar Star"],
+                answers: ["Navigator", "Engineer", "Communications Officer"]
+            },
+            {
+                question: "If you were given command, how would you lead?",
+                options: ["With Precise Calculations", "With Innovative Ideas", "With Motivational Speeches"],
+                answers: ["Captain", "Scientist", "Diplomat"]
+            },
+            {
+                question: "In the event of an alien encounter, what is your first response?",
+                options: ["Observe from a distance", "Attempt communication", "Prepare for battle"],
+                answers: ["Explorer", "Linguist", "Defender"]
+            }
+        ];
+
+        let questionIndex = 0;
+        let chosenRoles = [];
+
+        function startQuiz() {
+            transmissionSection.classList.add("hidden");
+            quizSection.classList.remove("hidden");
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (questionIndex < quizData.length) {
+                const data = quizData[questionIndex];
+                quizQuestion.innerText = data.question;
+                optionsContainer.innerHTML = "";
+
+                data.options.forEach((option, i) => {
+                    const btn = document.createElement("button");
+                    btn.classList.add("option");
+                    btn.innerText = option;
+                    btn.onclick = () => {
+                        chosenRoles.push(data.answers[i]);
+                        questionIndex++;
+                        showQuestion();
+                    };
+                    optionsContainer.appendChild(btn);
+                });
+            } else {
+                assignRole();
+            }
+        }
+
+        function assignRole() {
+            quizSection.classList.add("hidden");
+            roleSection.classList.remove("hidden");
+            
+            // Pick the most frequent role
+            const roleCounts = {};
+            chosenRoles.forEach(role => {
+                roleCounts[role] = (roleCounts[role] || 0) + 1;
+            });
+
+            const finalRole = Object.keys(roleCounts).reduce((a, b) => roleCounts[a] > roleCounts[b] ? a : b);
+            roleText.innerText = `Your role on the ship is: ${finalRole}!`;
+        }
+
+        // Show transmission and start typing
+        setTimeout(() => {
+            transmissionSection.classList.remove("hidden");
+            typeMessage();
+        }, 2000);
     </script>
 </body>
 </html>
