@@ -20,6 +20,7 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
+            transition: background 2s ease-in-out;
         }
         #countdown {
             font-size: 2rem;
@@ -95,6 +96,10 @@
                             document.getElementById("coordinates").style.display = "none";
                             document.getElementById("statusText").innerText = "Click the stars to decrypt the message:";
                             document.querySelector(".stars-container").style.display = "block";
+
+                            // CHANGE BACKGROUND AFTER COORDINATES RECEIVED
+                            document.body.style.background = "url('psychedelic-background.jpg') no-repeat center center fixed";
+                            document.body.style.backgroundSize = "cover";
                         }, 1000);
                     }, 3000);
                 }
