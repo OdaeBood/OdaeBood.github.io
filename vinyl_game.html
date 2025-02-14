@@ -25,6 +25,14 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
+        let playerImage = new Image();
+        let vinylImage = new Image();
+        let backgroundImage = new Image();
+
+        playerImage.src = "spaceship.png"; // Upload this to GitHub
+        vinylImage.src = "vinyl.png"; // Upload this to GitHub
+        backgroundImage.src = "space-background.gif"; // Upload this to GitHub
+
         class Player {
             constructor() {
                 this.width = 50;
@@ -34,11 +42,14 @@
                 this.speed = 5;
                 this.dx = 0;
                 this.dy = 0;
-                this.image = new Image();
-                this.image.src = "spaceship.png"; // Replace with spaceship image URL
             }
             draw() {
-                ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+                if (playerImage.complete) {
+                    ctx.drawImage(playerImage, this.x, this.y, this.width, this.height);
+                } else {
+                    ctx.fillStyle = "blue";
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                }
             }
             update() {
                 this.x += this.dx;
@@ -58,11 +69,16 @@
                 this.height = 30;
                 this.x = Math.random() * (canvas.width - this.width);
                 this.y = Math.random() * (canvas.height - this.height - 100);
-                this.image = new Image();
-                this.image.src = "vinyl.png"; // Replace with vinyl image URL
             }
             draw() {
-                ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+                if (vinylImage.complete) {
+                    ctx.drawImage(vinylImage, this.x, this.y, this.width, this.height);
+                } else {
+                    ctx.fillStyle = "gold";
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             }
         }
 
@@ -78,7 +94,13 @@
         }
 
         function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (backgroundImage.complete) {
+                ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+            } else {
+                ctx.fillStyle = "black";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
             player.draw();
             vinyls.forEach(vinyl => vinyl.draw());
         }
@@ -114,19 +136,4 @@
             if (e.key === "ArrowRight") player.dx = player.speed;
             if (e.key === "ArrowLeft") player.dx = -player.speed;
             if (e.key === "ArrowUp") player.dy = -player.speed;
-            if (e.key === "ArrowDown") player.dy = player.speed;
-        }
-
-        function keyUp(e) {
-            if (e.key === "ArrowRight" || e.key === "ArrowLeft") player.dx = 0;
-            if (e.key === "ArrowUp" || e.key === "ArrowDown") player.dy = 0;
-        }
-
-        window.addEventListener("keydown", keyDown);
-        window.addEventListener("keyup", keyUp);
-
-        spawnVinyls();
-        loop();
-    </script>
-</body>
-</html>
+            if (e.key === "ArrowDown") player.dy = player
