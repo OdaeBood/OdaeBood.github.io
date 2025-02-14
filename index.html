@@ -3,207 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Decrypting Coordinates</title>
+    <title>Vinyl Collection Quest</title>
     <style>
         body {
             background-color: black;
             color: white;
             font-family: Arial, sans-serif;
             text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             overflow: hidden;
+            margin: 0;
         }
-        .hidden { display: none; }
-        .fade-out { opacity: 0; transition: opacity 2s ease-in-out; }
-        .background {
-            position: fixed;
-            top: 0;
-            left: 0;
+        canvas {
+            display: block;
+            background: url('game-background.gif') no-repeat center center;
+            background-size: cover;
             width: 100vw;
             height: 100vh;
-            background: url('psychedelic-bg.gif') no-repeat center center fixed;
-            background-size: cover;
-            z-index: -1;
         }
-        .transition {
-            background: url('hyperdrive-transition.gif') no-repeat center center;
-            background-size: cover;
+        #game-over {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 10;
-        }
-        .game-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            background: url('space-planet.gif') no-repeat center center fixed;
-            background-size: cover;
-            display: none;
-            overflow: hidden;
-        }
-        .player {
-            width: 50px;
-            height: 50px;
-            position: absolute;
-            bottom: 50px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            background: url('player-character.png') no-repeat center center;
-            background-size: contain;
-        }
-        .vinyl {
-            width: 40px;
-            height: 40px;
-            position: absolute;
-            background: url('vinyl-record.png') no-repeat center center;
-            background-size: contain;
-        }
-        .score {
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border: 3px solid white;
             font-size: 1.5rem;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 10px;
-            border-radius: 5px;
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div id="countdown-section">
-        <h1>Awaiting Coordinates...</h1>
-        <h2 id="countdown">10</h2>
-    </div>
-
-    <div id="coordinates-section" class="hidden">
-        <h1 class="blink">Coordinates Received!</h1>
-        <p>Galaxy: Andromeda | Sector 7B | Vector 42</p>
-    </div>
-
-    <div id="transition-section" class="hidden transition"></div>
-    <div class="background hidden" id="gif-background"></div>
-
-    <div id="role-section" class="text-box hidden">
-        <h2>Congratulations!</h2>
-        <p>We've set course for <strong>Planet Ambrosia</strong>. A world of celestial melodies and harmonic wonders.</p>
-        <p>Are you ready to embark on the next phase of your journey?</p>
-        <button onclick="activateHyperdrive()" class="option">🚀 Let's go!</button>
-    </div>
-
-    <!-- 🚀 Game Section -->
-    <div id="game-container" class="game-container">
-        <div class="score">Vinyl Records Collected: <span id="score">0</span>/10</div>
-        <div id="player" class="player"></div>
-    </div>
+    <canvas id="gameCanvas"></canvas>
+    <div id="game-over">🎵 Congratulations! You've collected all the vinyl records! 🎶</div>
 
     <script>
-        let countdown = 10;
-        const countdownElement = document.getElementById("countdown");
-        const countdownSection = document.getElementById("countdown-section");
-        const coordinatesSection = document.getElementById("coordinates-section");
-        const transitionSection = document.getElementById("transition-section");
-        const roleSection = document.getElementById("role-section");
-        const gifBackground = document.getElementById("gif-background");
-        const gameContainer = document.getElementById("game-container");
-        const player = document.getElementById("player");
-        const scoreDisplay = document.getElementById("score");
-        
-        let score = 0;
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
 
-        function startCountdown() {
-            const interval = setInterval(() => {
-                countdown--;
-                countdownElement.innerText = countdown;
-                if (countdown <= 0) {
-                    clearInterval(interval);
-                    countdownSection.classList.add("fade-out");
-                    setTimeout(() => {
-                        countdownSection.classList.add("hidden");
-                        coordinatesSection.classList.remove("hidden");
-                        setTimeout(() => {
-                            coordinatesSection.classList.add("fade-out");
-                            setTimeout(() => {
-                                coordinatesSection.classList.add("hidden");
-                                transitionSection.classList.remove("hidden");
-                                setTimeout(() => {
-                                    transitionSection.classList.add("hidden");
-                                    gifBackground.classList.remove("hidden");
-                                    roleSection.classList.remove("hidden");
-                                }, 4000);
-                            }, 2000);
-                        }, 4000);
-                    }, 2000);
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const player = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            size: 30,
+            speed: 5,
+            color: "cyan"
+        };
+
+        const records = [];
+        const totalRecords = 10;
+        let collectedRecords = 0;
+
+        function createRecords() {
+            for (let i = 0; i < totalRecords; i++) {
+                records.push({
+                    x: Math.random() * (canvas.width - 20) + 10,
+                    y: Math.random() * (canvas.height - 20) + 10,
+                    size: 20,
+                    color: "gold"
+                });
+            }
+        }
+
+        function drawPlayer() {
+            ctx.fillStyle = player.color;
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawRecords() {
+            records.forEach((record) => {
+                ctx.fillStyle = record.color;
+                ctx.beginPath();
+                ctx.arc(record.x, record.y, record.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function detectCollision() {
+            records.forEach((record, index) => {
+                const dx = player.x - record.x;
+                const dy = player.y - record.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < player.size + record.size) {
+                    records.splice(index, 1);
+                    collectedRecords++;
+
+                    if (collectedRecords === totalRecords) {
+                        document.getElementById("game-over").style.display = "block";
+                    }
                 }
-            }, 1000);
+            });
         }
 
-        function activateHyperdrive() {
-            roleSection.classList.add("hidden");
-            transitionSection.classList.remove("hidden");
-            setTimeout(() => {
-                transitionSection.classList.add("hidden");
-                startGame();
-            }, 4000);
-        }
-
-        function startGame() {
-            gameContainer.style.display = "block";
-            spawnVinyl();
-            document.addEventListener("keydown", movePlayer);
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPlayer();
+            drawRecords();
+            detectCollision();
         }
 
         function movePlayer(event) {
-            const playerPos = player.getBoundingClientRect();
-            if (event.key === "ArrowLeft" && playerPos.left > 10) {
-                player.style.left = `${playerPos.left - 30}px`;
-            } else if (event.key === "ArrowRight" && playerPos.right < window.innerWidth - 10) {
-                player.style.left = `${playerPos.left + 30}px`;
-            }
+            if (event.key === "ArrowUp" && player.y - player.size > 0) player.y -= player.speed;
+            if (event.key === "ArrowDown" && player.y + player.size < canvas.height) player.y += player.speed;
+            if (event.key === "ArrowLeft" && player.x - player.size > 0) player.x -= player.speed;
+            if (event.key === "ArrowRight" && player.x + player.size < canvas.width) player.x += player.speed;
         }
 
-        function spawnVinyl() {
-            if (score >= 10) {
-                alert("Mission Complete! You've collected all 10 vinyl records!");
-                return;
-            }
-            let vinyl = document.createElement("div");
-            vinyl.classList.add("vinyl");
-            vinyl.style.left = `${Math.random() * 90 + 5}%`;
-            vinyl.style.top = "0px";
-            gameContainer.appendChild(vinyl);
-
-            let interval = setInterval(() => {
-                let vinylPos = vinyl.getBoundingClientRect();
-                let playerPos = player.getBoundingClientRect();
-                if (vinylPos.top > window.innerHeight) {
-                    vinyl.remove();
-                    clearInterval(interval);
-                    spawnVinyl();
-                } else if (
-                    vinylPos.bottom >= playerPos.top &&
-                    vinylPos.left >= playerPos.left &&
-                    vinylPos.right <= playerPos.right
-                ) {
-                    score++;
-                    scoreDisplay.innerText = score;
-                    vinyl.remove();
-                    clearInterval(interval);
-                    spawnVinyl();
-                } else {
-                    vinyl.style.top = `${vinylPos.top + 5}px`;
-                }
-            }, 100);
-        }
-
-        startCountdown();
+        window.addEventListener("keydown", movePlayer);
+        setInterval(update, 20);
+        createRecords();
     </script>
 </body>
 </html>
