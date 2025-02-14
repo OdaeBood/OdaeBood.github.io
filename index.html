@@ -21,13 +21,11 @@
             justify-content: center;
             height: 100vh;
         }
-        #countdown {
+        #countdown, #coordinates {
             font-size: 2rem;
             margin-bottom: 20px;
         }
         #coordinates {
-            font-size: 2rem;
-            margin-bottom: 20px;
             opacity: 0;
             transition: opacity 2s ease-in-out;
         }
@@ -50,4 +48,70 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: url('https://raw.githubusercontent.com/OdaeBood/OdaeBood.github.io/main/hyperdrive.gif') 
+            background: url('https://raw.githubusercontent.com/OdaeBood/OdaeBood.github.io/main/hyperdrive.gif') no-repeat center center;
+            background-size: cover;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="statusText">Awaiting Coordinates...</h1>
+    <div id="countdown">10</div>
+    <div id="coordinates">Coordinates Received: Galaxy: Andromeda | Sector 7B | Vector 42</div>
+    <div class="stars-container">
+        <h2>Click the stars to decrypt the message:</h2>
+        <span class="star" onclick="revealStar(0)">⭐</span>
+        <span class="star" onclick="revealStar(1)">⭐</span>
+        <span class="star" onclick="revealStar(2)">⭐</span>
+        <p id="message"></p>
+    </div>
+    <div class="hyperdrive-animation" id="hyperdriveScreen"></div>
+
+    <script>
+        let countdownValue = 10;
+        let foundStars = 0;
+        let messages = ["The stars align...", "Your path is set...", "Prepare for hyperdrive..."];
+
+        function startCountdown() {
+            let countdownInterval = setInterval(() => {
+                document.getElementById("countdown").innerText = countdownValue;
+                countdownValue--;
+                if (countdownValue < 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById("countdown").style.display = "none";
+                    document.getElementById("statusText").innerText = "Coordinates Received:";
+                    document.getElementById("coordinates").style.opacity = "1";
+                    
+                    setTimeout(() => {
+                        document.getElementById("coordinates").style.opacity = "0";
+                        document.getElementById("statusText").innerText = "Click the stars to decrypt the message:";
+                        document.querySelector(".stars-container").style.display = "block";
+                    }, 3000);
+                }
+            }, 1000);
+        }
+
+        function revealStar(index) {
+            let stars = document.querySelectorAll(".star");
+            if (!stars[index].classList.contains("revealed")) {
+                stars[index].classList.add("revealed");
+                document.getElementById("message").innerText = messages[foundStars];
+                foundStars++;
+            }
+            if (foundStars === 3) {
+                engageHyperdrive();
+            }
+        }
+
+        function engageHyperdrive() {
+            document.querySelector(".stars-container").style.display = "none";
+            document.getElementById("hyperdriveScreen").style.display = "block";
+            setTimeout(() => {
+                window.location.href = 'mission_control.html';
+            }, 3000);
+        }
+
+        startCountdown();
+    </script>
+</body>
+</html>
