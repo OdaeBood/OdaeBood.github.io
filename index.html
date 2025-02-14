@@ -120,7 +120,7 @@
         <p id="nickname-text"></p>
         <p>We've set course for <strong>Planet Ambrosia</strong>. A world of celestial melodies and harmonic wonders.</p>
         <p>Are you ready to embark on the next phase of your journey?</p>
-        <button onclick="startGame()" class="option">🚀 Let's go!</button>
+        <button onclick="startHyperdrive()" class="option">🚀 Let's go!</button>
     </div>
 
     <script>
@@ -132,10 +132,6 @@
         const transmissionSection = document.getElementById("transmission-section");
         const quizSection = document.getElementById("quiz-section");
         const roleSection = document.getElementById("role-section");
-        const quizQuestion = document.getElementById("quiz-question");
-        const optionsContainer = document.getElementById("options-container");
-        const roleText = document.getElementById("role-text");
-        const nicknameText = document.getElementById("nickname-text");
         const gifBackground = document.getElementById("gif-background");
 
         function startCountdown() {
@@ -157,7 +153,6 @@
                                     transitionSection.classList.add("hidden");
                                     gifBackground.classList.remove("hidden");
                                     transmissionSection.classList.remove("hidden");
-                                    typeMessage();
                                 }, 4000);
                             }, 2000);
                         }, 4000);
@@ -166,66 +161,12 @@
             }, 1000);
         }
 
-        const message = "Hi Delah, this is the captain speaking. We are currently travelling at light speed towards our destination. Why don't we burn some time along the way?";
-        const typingText = document.getElementById("typing-text");
-        let currentIndex = 0;
-
-        function typeMessage() {
-            if (currentIndex < message.length) {
-                typingText.innerHTML += message[currentIndex];
-                currentIndex++;
-                setTimeout(typeMessage, 50);
-            } else {
-                setTimeout(startQuiz, 2000);
-            }
-        }
-
-        const quizData = [
-            { question: "Which celestial body fascinates you the most?", options: ["A Black Hole", "A Distant Galaxy", "The Moon"], answers: ["Navigator", "Engineer", "Communications Officer"] },
-            { question: "If you were given command, how would you lead?", options: ["With Precise Calculations", "With Innovative Ideas", "With Motivational Speeches"], answers: ["Captain", "Scientist", "Diplomat"] },
-            { question: "In the event of an alien encounter, what is your first response?", options: ["Observe from a distance", "Attempt communication", "Prepare for battle"], answers: ["Explorer", "Linguist", "Defender"] }
-        ];
-
-        let questionIndex = 0;
-        let chosenRoles = [];
-
-        function startQuiz() {
-            transmissionSection.classList.add("hidden");
-            quizSection.classList.remove("hidden");
-            showQuestion();
-        }
-
-        function showQuestion() {
-            if (questionIndex < quizData.length) {
-                const data = quizData[questionIndex];
-                quizQuestion.innerText = data.question;
-                optionsContainer.innerHTML = "";
-
-                data.options.forEach((option, i) => {
-                    const btn = document.createElement("button");
-                    btn.classList.add("option");
-                    btn.innerText = option;
-                    btn.onclick = () => {
-                        chosenRoles.push(data.answers[i]);
-                        questionIndex++;
-                        showQuestion();
-                    };
-                    optionsContainer.appendChild(btn);
-                });
-            } else {
-                assignRole();
-            }
-        }
-
-        function assignRole() {
-            quizSection.classList.add("hidden");
-            roleSection.classList.remove("hidden");
-            roleText.innerText = `Your role on the ship is: ${chosenRoles[0]}!`;
-            nicknameText.innerText = `The crew has given you the nickname: "Ms. Calypso" for your raw talent and unwavering passion for music.`;
-        }
-
-        function startGame() {
-            window.location.href = "game.html";
+        function startHyperdrive() {
+            roleSection.classList.add("hidden");
+            transitionSection.classList.remove("hidden");
+            setTimeout(() => {
+                window.location.href = "game.html";
+            }, 4000);
         }
 
         startCountdown();
