@@ -28,12 +28,9 @@
             font-family: Arial, sans-serif;
             width: 400px;
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-            opacity: 1;
-            transition: opacity 0.5s ease-in-out;
         }
         .hidden {
-            opacity: 0;
-            pointer-events: none;
+            display: none;
         }
         .game-over {
             position: absolute;
@@ -47,7 +44,6 @@
             color: white;
             font-family: Arial, sans-serif;
             width: 300px;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             display: none;
         }
         .game-over button, .popup button {
@@ -71,7 +67,7 @@
         <p>🎯 <strong>Collect 10 vinyl records</strong> to complete your mission.</p>
         <p>⚠️ <strong>Avoid the Grammy awards</strong>—getting hit by one ends the game!</p>
         <p>🎮 <strong>Use Left & Right Arrow Keys to Move</strong></p>
-        <button onclick="hidePopupAndStartGame()">Start Game</button>
+        <button onclick="startGame()">Start Game</button>
     </div>
 
     <!-- Game Over Popup -->
@@ -97,6 +93,8 @@
         vinylImage.src = "vinyl.png"; 
         grammyImage.src = "grammy.png"; 
         backgroundImage.src = "space-background.gif"; 
+
+        let gameRunning = false;
 
         class Player {
             constructor() {
@@ -139,24 +137,24 @@
         let fallingObjects = [];
         let score = 0;
         const maxVinyls = 10;
-        const gameOverScreen = document.getElementById("gameOverScreen");
-        let gameRunning = false;
 
         function spawnObjects() {
             setInterval(() => {
-                let type = Math.random() > 0.75 ? "vinyl" : "grammy"; 
+                if (!gameRunning) return;
+                let type = Math.random() > 0.75 ? "vinyl" : "grammy";
                 fallingObjects.push(new FallingObject(type));
             }, 500);
         }
 
         function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
             player.draw();
             fallingObjects.forEach(obj => obj.draw());
         }
 
         function update() {
-            if (!gameRunning) return; 
+            if (!gameRunning) return;
 
             player.update();
             fallingObjects.forEach((obj, index) => {
@@ -176,19 +174,25 @@
                         fallingObjects.splice(index, 1);
                         score++;
                         if (score >= maxVinyls) {
-                            alert("🎉 Mission Complete! You collected all the vinyls!");
-                            restartGame();
+                            setTimeout(() => {
+                                alert("🎉 Mission Complete! You collected all the vinyls!");
+                                restartGame();
+                            }, 500);
                         }
                     } else {
-                        gameOver();
+                        setTimeout(() => {
+                            gameOver();
+                        }, 300);
                     }
                 }
             });
         }
 
         function loop() {
-            update();
-            draw();
+            if (gameRunning) {
+                update();
+                draw();
+            }
             requestAnimationFrame(loop);
         }
 
@@ -201,16 +205,16 @@
             if (e.key === "ArrowRight" || e.key === "ArrowLeft") player.dx = 0;
         }
 
-        function hidePopupAndStartGame() {
+        function startGame() {
             document.getElementById("instructions").classList.add("hidden");
-            gameRunning = true; 
+            gameRunning = true;
             spawnObjects();
             loop();
         }
 
         function gameOver() {
             gameRunning = false;
-            gameOverScreen.style.display = "block";
+            document.getElementById("gameOverScreen").style.display = "block";
         }
 
         function restartGame() {
@@ -219,6 +223,11 @@
 
         window.addEventListener("keydown", keyDown);
         window.addEventListener("keyup", keyUp);
+
+        // Load the background before showing the pop-up
+        backgroundImage.onload = function() {
+            draw();
+        };
     </script>
 </body>
 </html>
