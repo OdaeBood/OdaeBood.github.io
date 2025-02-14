@@ -81,6 +81,7 @@
     <div id="gameOverScreen" class="overlay hidden">
         <h2 id="gameOverMessage"></h2>
         <button class="btn" onclick="restartGame()">Play Again</button>
+        <button class="btn" onclick="continueToAmbrosia()">Continue to Ambrosia</button>
     </div>
 
     <!-- Black Screen for Ambrosia Delay Message -->
@@ -221,12 +222,8 @@
         }
 
         function showEndScreen() {
+            gameRunning = false;
             document.getElementById("gameOverScreen").classList.remove("hidden");
-            document.getElementById("gameOverScreen").innerHTML = `
-                <h2>🎉 Mission Complete!</h2>
-                <button class='btn' onclick='restartGame()'>Play Again</button>
-                <button class='btn' onclick='continueToAmbrosia()'>Continue to Ambrosia</button>
-            `;
         }
 
         function continueToAmbrosia() {
