@@ -173,6 +173,42 @@
             }
         }
 
+        function startQuiz() {
+            transmissionSection.classList.add("hidden");
+            quizSection.classList.remove("hidden");
+            showQuestion();
+        }
+
+        const quizData = [
+            { question: "Which celestial body fascinates you the most?", options: ["A Black Hole", "A Distant Galaxy", "The Moon"], answers: ["Navigator", "Engineer", "Communications Officer"] },
+            { question: "If you were given command, how would you lead?", options: ["With Precise Calculations", "With Innovative Ideas", "With Motivational Speeches"], answers: ["Captain", "Scientist", "Diplomat"] },
+            { question: "In the event of an alien encounter, what is your first response?", options: ["Observe from a distance", "Attempt communication", "Prepare for battle"], answers: ["Explorer", "Linguist", "Defender"] }
+        ];
+
+        let questionIndex = 0;
+        let chosenRoles = [];
+
+        function showQuestion() {
+            if (questionIndex < quizData.length) {
+                const data = quizData[questionIndex];
+                quizQuestion.innerText = data.question;
+                optionsContainer.innerHTML = "";
+                data.options.forEach((option, i) => {
+                    const btn = document.createElement("button");
+                    btn.classList.add("option");
+                    btn.innerText = option;
+                    btn.onclick = () => {
+                        chosenRoles.push(data.answers[i]);
+                        questionIndex++;
+                        showQuestion();
+                    };
+                    optionsContainer.appendChild(btn);
+                });
+            } else {
+                assignRole();
+            }
+        }
+
         function activateHyperdrive() {
             roleSection.classList.add("hidden");
             transitionSection.classList.remove("hidden");
@@ -182,11 +218,7 @@
             }, 4000);
         }
 
-        function startGame() {
-            document.body.innerHTML = `<div class="game-container">
-                <canvas id="gameCanvas" width="800" height="600"></canvas>
-            </div>`;
-        }
+        function startGame() { window.location.href = "game.html"; }
 
         startCountdown();
     </script>
