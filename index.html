@@ -3,179 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Awaiting Coordinates...</title>
+    <title>Decrypting Coordinates</title>
     <style>
-        @font-face {
-            font-family: 'PixelFont';
-            src: url('path-to-your-pixel-font.woff2') format('woff2');
-        }
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
         body {
-            overflow: hidden;
-            font-family: 'PixelFont', sans-serif;
-            text-align: center;
-            color: white;
             background: black;
-            position: relative;
-            cursor: url('spaceship-cursor.png'), auto;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
-        .container {
-            position: absolute;
-            bottom: 5%; /* Adjusted to move box to bottom */
-            left: 50%;
-            transform: translate(-50%, 0);
-            background: rgba(0, 0, 0, 0.6);
-            padding: 25px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 500px;
-            border: 3px solid yellow;
-            box-shadow: 0px 0px 10px yellow;
-        }
-        .countdown {
+        #countdown {
             font-size: 2rem;
             margin-bottom: 20px;
         }
-        .star-container {
-            position: absolute;
+        #coordinates {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+        }
+        .stars-container {
+            display: none;
+        }
+        .star {
+            font-size: 2rem;
+            cursor: pointer;
+            margin: 10px;
+            opacity: 0.5;
+        }
+        .star.revealed {
+            opacity: 1;
+            color: gold;
+        }
+        .hyperdrive-animation {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-        }
-        .star {
-            width: 6px;
-            height: 6px;
-            background: white;
-            border-radius: 50%;
-            position: absolute;
-        }
-        .twinkle {
-            animation: twinkle 1s infinite alternate;
-        }
-        @keyframes twinkle {
-            from { opacity: 1; }
-            to { opacity: 0.3; }
-        }
-        .trace-line {
-            position: absolute;
-            height: 2px;
-            background: yellow;
-            display: block;
-            transition: opacity 3s ease-in-out;
-        }
-        .message {
+            background: url('https://raw.githubusercontent.com/OdaeBood/OdaeBood.github.io/main/hyperdrive.gif') no-repeat center center;
+            background-size: cover;
             display: none;
-            margin-top: 20px;
-            font-size: 1.2rem;
-        }
-        #hyperdriveButton {
-            display: none;
-            margin-top: 20px;
-            padding: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="container" id="centerBox">
-        <div class="countdown" id="countdown">Awaiting coordinates... 10</div>
-        <div class="message" id="message">Curiosity fuels adventure. But only the brave explore the unknown...</div>
-        <button onclick="enterHyperdrive()" id="hyperdriveButton">Enter Hyperdrive</button>
+    <h1 id="statusText">Awaiting Coordinates...</h1>
+    <div id="countdown">10</div>
+    <div id="coordinates">Coordinates Received: Galaxy: Andromeda | Sector 7B | Vector 42</div>
+    <div class="stars-container">
+        <p>Click the stars to decrypt the message:</p>
+        <span class="star" onclick="revealStar(0)">⭐</span>
+        <span class="star" onclick="revealStar(1)">⭐</span>
+        <span class="star" onclick="revealStar(2)">⭐</span>
+        <p id="message"></p>
     </div>
-    <div class="star-container" id="starContainer"></div>
+    <div class="hyperdrive-animation" id="hyperdriveScreen"></div>
 
     <script>
-        let countdown = 10;
-        function updateCountdown() {
-            const countdownElement = document.getElementById('countdown');
-            if (countdownElement) {
-                countdownElement.innerText = `Awaiting coordinates... ${countdown}`;
-                if (countdown > 0) {
-                    countdown--;
-                    setTimeout(updateCountdown, 1000);
-                } else {
-                    countdownElement.style.display = 'none';
-                    generateStars();
+        let countdownValue = 10;
+        let foundStars = 0;
+        let messages = ["The stars align...", "Your path is set...", "Prepare for hyperdrive..."];
+
+        function startCountdown() {
+            let countdownInterval = setInterval(() => {
+                document.getElementById("countdown").innerText = countdownValue;
+                countdownValue--;
+                if (countdownValue < 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById("countdown").style.display = "none";
+                    document.getElementById("coordinates").style.opacity = "1";
+                    document.getElementById("statusText").innerText = ""; 
+                    
+                    setTimeout(() => {
+                        document.getElementById("coordinates").style.opacity = "0";
+                        document.querySelector(".stars-container").style.display = "block";
+                        document.getElementById("statusText").innerText = "Click the stars to decrypt the message";
+                    }, 3000);
                 }
+            }, 1000);
+        }
+
+        function revealStar(index) {
+            let stars = document.querySelectorAll(".star");
+            if (!stars[index].classList.contains("revealed")) {
+                stars[index].classList.add("revealed");
+                document.getElementById("message").innerText = messages[foundStars];
+                foundStars++;
+            }
+            if (foundStars === 3) {
+                engageHyperdrive();
             }
         }
-        updateCountdown();
 
-        function generateStars() {
-            const starContainer = document.getElementById('starContainer');
-            const littleDipperCoords = [
-                [window.innerWidth * 0.3, window.innerHeight * 0.2],
-                [window.innerWidth * 0.35, window.innerHeight * 0.3],
-                [window.innerWidth * 0.4, window.innerHeight * 0.4],
-                [window.innerWidth * 0.45, window.innerHeight * 0.5],
-                [window.innerWidth * 0.42, window.innerHeight * 0.55],
-                [window.innerWidth * 0.37, window.innerHeight * 0.6],
-                [window.innerWidth * 0.32, window.innerHeight * 0.65]
-            ];
-            let drawnLines = [];
-
-            for (let i = 0; i < 600; i++) {  // Increased star count slightly
-                let randStar = document.createElement('div');
-                randStar.classList.add('star');
-                randStar.style.left = `${Math.random() * window.innerWidth}px`;
-                randStar.style.top = `${Math.random() * window.innerHeight}px`;
-                starContainer.appendChild(randStar);
-            }
-
-            littleDipperCoords.forEach((coords, index) => {
-                let star = document.createElement('div');
-                star.classList.add('star', 'twinkle'); // Added twinkle effect
-                star.style.left = `${coords[0]}px`;
-                star.style.top = `${coords[1]}px`;
-                star.dataset.index = index;
-                starContainer.appendChild(star);
-                
-                if (index < littleDipperCoords.length - 1) {
-                    let line = document.createElement('div');
-                    line.classList.add('trace-line');
-                    line.style.left = `${coords[0]}px`;
-                    line.style.top = `${coords[1]}px`;
-                    starContainer.appendChild(line);
-                    drawnLines.push(line);
-                }
-            });
-
+        function engageHyperdrive() {
+            document.querySelector(".stars-container").style.display = "none";
+            document.getElementById("hyperdriveScreen").style.display = "block";
             setTimeout(() => {
-                drawnLines.forEach(line => line.style.opacity = '0');
-            }, 3000);
-
-            enableLineDrawing();
-        }
-
-        function enableLineDrawing() {
-            let drawnStars = [];
-            document.querySelectorAll('.star').forEach(star => {
-                star.addEventListener('click', function () {
-                    if (drawnStars.length === 0 || drawnStars[drawnStars.length - 1].dataset.index == this.dataset.index - 1) {
-                        this.style.background = 'yellow';
-                        drawnStars.push(this);
-                        if (drawnStars.length === 7) {
-                            document.getElementById('message').style.display = 'block';
-                            document.getElementById('hyperdriveButton').style.display = 'block';
-                        }
-                    }
-                });
-            });
-        }
-
-        function enterHyperdrive() {
-            document.body.innerHTML = "<div style='font-size: 2rem; text-align: center; color: white; margin-top: 20vh;'>Engaging Hyperdrive...</div>";
-            setTimeout(() => {
-                document.body.innerHTML = `<div class='dashboard' id='dashboard'>
-                    <h2>Mission Control</h2>
-                    <p>Commander, our intergalactic systems have detected high levels of affection. Mission: Valentine is now officially GO. Prepare for a stellar surprise!</p>
-                </div>`;
+                window.location.href = 'mission_control.html';
             }, 3000);
         }
+
+        startCountdown();
     </script>
 </body>
 </html>
