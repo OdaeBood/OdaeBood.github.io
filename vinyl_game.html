@@ -235,7 +235,7 @@
         function keyDown(e) {
             if (e.key === "ArrowRight") player.dx = player.speed;
             if (e.key === "ArrowLeft") player.dx = -player.speed;
-            if (e.key === " ") beams.push(new Beam(player.x));
+            if (e.code === "Space") beams.push(new Beam(player.x));
         }
 
         function keyUp(e) {
