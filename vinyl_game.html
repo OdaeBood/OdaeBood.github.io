@@ -95,7 +95,7 @@
         vinylImage.src = "vinyl.png"; 
         grammyImage.src = "grammy.png"; 
         backgroundImage.src = "space-background.gif"; 
-        beamImage.src = "beam.png"; // Upload beam image to GitHub
+        beamImage.src = "beam.png"; 
 
         let gameRunning = false;
         let score = 0;
@@ -191,8 +191,8 @@
                         beam.y < item.y + item.height &&
                         beam.y + beam.height > item.y
                     ) {
-                        items.splice(itemIndex, 1); // Remove Grammy
-                        beams.splice(beamIndex, 1); // Remove Beam
+                        items.splice(itemIndex, 1);
+                        beams.splice(beamIndex, 1);
                     }
                 });
             });
@@ -208,19 +208,15 @@
                         score++;
                         items.splice(index, 1);
                         if (score >= 10) {
-                            setTimeout(() => {
-                                document.getElementById("gameOverScreen").innerHTML = "<h2>🎉 Mission Complete!</h2><p>You collected all 10 vinyls!</p><button class='btn' onclick='restartGame()'>Play Again</button>";
-                                document.getElementById("gameOverScreen").style.display = "block";
-                                gameRunning = false;
-                                clearInterval(spawnInterval);
-                            }, 500);
+                            document.getElementById("gameOverScreen").innerHTML = "<h2>🎉 Mission Complete!</h2><p>You collected all 10 vinyls!</p><button class='btn' onclick='restartGame()'>Play Again</button>";
+                            document.getElementById("gameOverScreen").style.display = "block";
+                            gameRunning = false;
+                            clearInterval(spawnInterval);
                         }
                     } else {
                         gameRunning = false;
                         clearInterval(spawnInterval);
-                        setTimeout(() => {
-                            document.getElementById("gameOverScreen").style.display = "block";
-                        }, 300);
+                        document.getElementById("gameOverScreen").style.display = "block";
                     }
                 }
             });
@@ -249,9 +245,20 @@
         window.addEventListener("keydown", keyDown);
         window.addEventListener("keyup", keyUp);
 
-        backgroundImage.onload = function() {
-            draw();
-        };
+        function startGame() {
+            document.getElementById("instructions").style.display = "none";
+            document.getElementById("gameOverScreen").style.display = "none";
+            items = [];
+            beams = [];
+            score = 0;
+            gameRunning = true;
+            spawnInterval = setInterval(spawnItem, 600);
+            loop();
+        }
+
+        function restartGame() {
+            startGame();
+        }
     </script>
 </body>
 </html>
