@@ -63,13 +63,48 @@
         .hidden {
             display: none;
         }
+
+        /* Countdown & Coordinates Screen */
+        #awaiting-coordinates, #coordinates-received {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .fade-out {
+            animation: fadeOut 1s forwards;
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
     </style>
 </head>
 <body>
 
+<!-- Countdown Screen -->
+<div id="awaiting-coordinates">
+    <p>Awaiting Coordinates...</p>
+    <p id="countdown">10</p>
+</div>
+
+<!-- Coordinates Received -->
+<div id="coordinates-received" class="hidden">
+    <p>Coordinates Received!</p>
+    <p>Galaxy: Andromeda | Sector 7B | Vector 42</p>
+</div>
+
+<!-- Transition Effect -->
 <div id="transition-screen"></div>
 
-<div class="container" id="decrypt-message">
+<!-- Click the Stars Page -->
+<div class="container hidden" id="decrypt-message">
     <h1>Click the stars to decrypt the message:</h1>
     <div class="stars">
         <img src="star.png" class="star" onclick="revealMessage(1)">
@@ -80,7 +115,32 @@
 </div>
 
 <script>
+    let countdown = 10;
     let foundStars = 0;
+
+    function startCountdown() {
+        let countdownElement = document.getElementById("countdown");
+        let interval = setInterval(() => {
+            countdown--;
+            countdownElement.textContent = countdown;
+
+            if (countdown <= 0) {
+                clearInterval(interval);
+                document.getElementById("awaiting-coordinates").classList.add("fade-out");
+                setTimeout(() => {
+                    document.getElementById("awaiting-coordinates").style.display = "none";
+                    document.getElementById("coordinates-received").classList.remove("hidden");
+                    setTimeout(() => {
+                        document.getElementById("coordinates-received").classList.add("fade-out");
+                        setTimeout(() => {
+                            document.getElementById("coordinates-received").style.display = "none";
+                            document.getElementById("decrypt-message").classList.remove("hidden");
+                        }, 1000);
+                    }, 2000);
+                }, 1000);
+            }
+        }, 1000);
+    }
 
     function revealMessage(star) {
         foundStars++;
@@ -89,11 +149,13 @@
             setTimeout(() => {
                 document.getElementById("transition-screen").style.display = "block";
                 setTimeout(() => {
-                    window.location.href = "nextpage.html"; // Change to next page URL
+                    window.location.href = "nextpage.html"; // Change to the next page
                 }, 3000);
             }, 1000);
         }
     }
+
+    window.onload = startCountdown;
 </script>
 
 </body>
