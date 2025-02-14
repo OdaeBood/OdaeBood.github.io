@@ -13,7 +13,7 @@
         canvas {
             display: block;
         }
-        /* Overlay Pop-up Instructions */
+        /* Overlay Pop-up Instructions & Game Over */
         .overlay {
             position: fixed;
             top: 50%;
@@ -30,7 +30,7 @@
             flex-direction: column;
             box-shadow: 0 0 10px white;
         }
-        .start-btn {
+        .btn {
             background: white;
             color: black;
             padding: 10px;
@@ -39,16 +39,26 @@
             cursor: pointer;
             margin-top: 15px;
         }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <!-- Instruction Popup (Overlay on Game Screen) -->
+    <!-- Instruction Popup -->
     <div class="overlay" id="instructions">
         <h2>Welcome to the Vinyl Collection Quest! 🎶</h2>
-        <p>🎯 **Collect 10 vinyl records** to complete your mission.</p>
-        <p>⚠️ **Avoid the Grammy awards**—getting hit by one ends the game!</p>
-        <p>🎮 **Use Left & Right Arrow Keys to Move**</p>
-        <button class="start-btn" onclick="startGame()">Start Game</button>
+        <p>🎯 <strong>Collect 10 vinyl records</strong> to complete your mission.</p>
+        <p>⚠️ <strong>Avoid the Grammy awards</strong>—getting hit by one ends the game!</p>
+        <p>🎮 <strong>Use Left & Right Arrow Keys to Move</strong></p>
+        <button class="btn" onclick="startGame()">Start Game</button>
+    </div>
+
+    <!-- Game Over Popup -->
+    <div class="overlay hidden" id="gameOverScreen">
+        <h2>💀 Game Over!</h2>
+        <p>You got hit by a Grammy!</p>
+        <button class="btn" onclick="restartGame()">Restart Game</button>
     </div>
 
     <canvas id="gameCanvas"></canvas>
@@ -149,12 +159,15 @@
                         score++;
                         items.splice(index, 1);
                         if (score >= 10) {
-                            alert("🎉 You collected all the vinyls! Mission Complete!");
-                            restartGame();
+                            document.getElementById("gameOverScreen").innerHTML = `
+                                <h2>🎉 Mission Complete!</h2>
+                                <p>You collected all the vinyls!</p>
+                                <button class="btn" onclick="restartGame()">Restart Game</button>`;
+                            document.getElementById("gameOverScreen").classList.remove("hidden");
                         }
                     } else if (item.type === "grammy") {
-                        alert("💀 You got hit by a Grammy! Game Over.");
-                        restartGame();
+                        document.getElementById("gameOverScreen").classList.remove("hidden");
+                        gameOver = true;
                     }
                 }
             });
@@ -182,7 +195,7 @@
         window.addEventListener("keyup", keyUp);
 
         function startGame() {
-            document.getElementById("instructions").style.display = "none"; // Remove popup
+            document.getElementById("instructions").classList.add("hidden"); // Hide popup
             items = []; // Reset items
             score = 0; // Reset score
             gameOver = false;
@@ -191,7 +204,8 @@
         }
 
         function restartGame() {
-            document.getElementById("instructions").style.display = "flex"; // Show popup again
+            document.getElementById("gameOverScreen").classList.add("hidden"); // Hide game over screen
+            startGame();
         }
     </script>
 </body>
