@@ -244,11 +244,22 @@
             loop();
         }
 
-        function endGame(message) {
-            gameRunning = false;
-            document.getElementById("gameOverMessage").innerText = message;
-            document.getElementById("gameOverScreen").classList.remove("hidden");
-        }
+       function endGame(message) {
+    gameRunning = false;
+    document.getElementById("gameOverMessage").innerHTML = `
+        <h2>${message}</h2>
+        <button class="btn" onclick="restartGame()">Play Again</button>
+        <button class="btn" onclick="continueToAmbrosia()">Continue to Ambrosia</button>
+    `;
+    document.getElementById("gameOverScreen").classList.remove("hidden");
+}
+function continueToAmbrosia() {
+    document.body.innerHTML = `
+        <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: black; color: white; text-align: center; font-size: 1.5rem;">
+            Unfortunately, our crew was sabotaged and given wrong coordinates that delay our mission. <br> Stand by, awaiting new coordinates...
+        </div>
+    `;
+}
 
         function restartGame() {
             document.getElementById("gameOverScreen").classList.add("hidden");
