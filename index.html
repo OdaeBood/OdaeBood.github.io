@@ -3,14 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vinyl Collector Game</title>
+    <title>Decrypting Coordinates</title>
     <style>
         body {
-            background: black;
+            background-color: black;
             color: white;
             font-family: Arial, sans-serif;
             text-align: center;
             overflow: hidden;
+        }
+        .hidden {
+            display: none;
+        }
+        .fade-out {
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+        }
+        .blink {
+            animation: blink-animation 1s steps(2, start) infinite;
+        }
+        @keyframes blink-animation {
+            to {
+                visibility: hidden;
+            }
+        }
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: url('psychedelic-bg.gif') no-repeat center center fixed;
+            background-size: cover;
+            z-index: -1;
+        }
+        .text-box {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        .stars {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .star {
+            font-size: 40px;
+            cursor: pointer;
+            color: gold;
+        }
+        .transition {
+            background: url('hyperdrive-transition.gif') no-repeat center center;
+            background-size: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+        }
+        /* Game Styling */
+        #game-container {
+            position: relative;
+            width: 600px;
+            margin: auto;
         }
         canvas {
             background: url('space-background.jpg') no-repeat center center;
@@ -19,11 +76,6 @@
             margin: auto;
             border: 2px solid white;
         }
-        #game-container {
-            position: relative;
-            width: 600px;
-            margin: auto;
-        }
         #message {
             font-size: 20px;
             margin-top: 10px;
@@ -31,85 +83,174 @@
     </style>
 </head>
 <body>
-    <h1>Planet Ambrosia: Vinyl Collector</h1>
-    <p>Catch 10 vinyl records to win!</p>
-    <div id="game-container">
-        <canvas id="gameCanvas" width="600" height="400"></canvas>
-        <p id="message">Score: 0</p>
+    <div id="countdown-section">
+        <h1>Awaiting Coordinates...</h1>
+        <h2 id="countdown">10</h2>
+    </div>
+
+    <div id="coordinates-section" class="hidden">
+        <h1 class="blink">Coordinates Received!</h1>
+        <p>Galaxy: Ambrosia | Sector 7B | Vector 42</p>
+    </div>
+
+    <div id="transition-section" class="hidden transition"></div>
+
+    <div id="decrypt-section" class="hidden">
+        <div class="background"></div>
+        <div class="text-box">
+            <h1>Incoming Transmission</h1>
+            <p id="transmission-text"></p>
+        </div>
+    </div>
+
+    <div id="game-section" class="hidden">
+        <h1>Planet Ambrosia: Vinyl Collector</h1>
+        <p>Catch 10 vinyl records to win!</p>
+        <div id="game-container">
+            <canvas id="gameCanvas" width="600" height="400"></canvas>
+            <p id="message">Score: 0</p>
+        </div>
     </div>
 
     <script>
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
+        let countdown = 10;
+        const countdownElement = document.getElementById("countdown");
+        const countdownSection = document.getElementById("countdown-section");
+        const coordinatesSection = document.getElementById("coordinates-section");
+        const transitionSection = document.getElementById("transition-section");
+        const decryptSection = document.getElementById("decrypt-section");
+        const gameSection = document.getElementById("game-section");
 
-        let player = { x: 275, y: 350, width: 50, height: 50 };
-        let records = [];
-        let score = 0;
-        let gameRunning = true;
-
-        function drawPlayer() {
-            ctx.fillStyle = "white";
-            ctx.fillRect(player.x, player.y, player.width, player.height);
-        }
-
-        function drawRecords() {
-            ctx.fillStyle = "gold";
-            records.forEach(record => {
-                ctx.beginPath();
-                ctx.arc(record.x, record.y, 10, 0, Math.PI * 2);
-                ctx.fill();
-            });
-        }
-
-        function updateRecords() {
-            records.forEach(record => {
-                record.y += 3; // Fall speed
-                if (record.y > canvas.height) {
-                    record.y = 0;
-                    record.x = Math.random() * canvas.width;
+        function startCountdown() {
+            const interval = setInterval(() => {
+                countdown--;
+                countdownElement.innerText = countdown;
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    countdownSection.classList.add("fade-out");
+                    setTimeout(() => {
+                        countdownSection.classList.add("hidden");
+                        coordinatesSection.classList.remove("hidden");
+                        setTimeout(() => {
+                            coordinatesSection.classList.add("fade-out");
+                            setTimeout(() => {
+                                coordinatesSection.classList.add("hidden");
+                                transitionSection.classList.remove("hidden");
+                                setTimeout(() => {
+                                    transitionSection.classList.add("hidden");
+                                    decryptSection.classList.remove("hidden");
+                                    startTransmission();
+                                }, 4000);
+                            }, 2000);
+                        }, 4000);
+                    }, 2000);
                 }
-                if (
-                    record.y + 10 > player.y &&
-                    record.x > player.x &&
-                    record.x < player.x + player.width
-                ) {
-                    score++;
-                    record.y = 0;
-                    record.x = Math.random() * canvas.width;
-                    document.getElementById("message").innerText = `Score: ${score}`;
+            }, 1000);
+        }
+
+        function startTransmission() {
+            const message = "Hi Delah, this is the captain speaking. We are currently travelling at light speed towards our destination. Why don't we burn some time along the way...";
+            let index = 0;
+            const textElement = document.getElementById("transmission-text");
+
+            function typeWriter() {
+                if (index < message.length) {
+                    textElement.innerHTML += message.charAt(index);
+                    index++;
+                    setTimeout(typeWriter, 50);
+                } else {
+                    setTimeout(() => {
+                        decryptSection.classList.add("hidden");
+                        gameSection.classList.remove("hidden");
+                        startGame();
+                    }, 2000);
                 }
-            });
-
-            if (score >= 10) {
-                document.getElementById("message").innerText = "You won! 🎶";
-                gameRunning = false;
             }
+            typeWriter();
         }
 
-        function movePlayer(event) {
-            if (event.key === "ArrowLeft" && player.x > 0) {
-                player.x -= 20;
-            } else if (event.key === "ArrowRight" && player.x < canvas.width - player.width) {
-                player.x += 20;
+        function startGame() {
+            const canvas = document.getElementById("gameCanvas");
+            const ctx = canvas.getContext("2d");
+
+            let player = {
+                x: 275,
+                y: 350,
+                width: 50,
+                height: 50,
+                image: new Image()
+            };
+            player.image.src = 'mario-character.png'; // Upload this file to GitHub
+
+            let records = [];
+            let score = 0;
+            let gameRunning = true;
+
+            function drawPlayer() {
+                ctx.drawImage(player.image, player.x, player.y, player.width, player.height);
             }
+
+            function drawRecords() {
+                ctx.fillStyle = "gold";
+                records.forEach(record => {
+                    ctx.beginPath();
+                    ctx.arc(record.x, record.y, 10, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            }
+
+            function updateRecords() {
+                records.forEach(record => {
+                    record.y += 3;
+                    if (record.y > canvas.height) {
+                        record.y = 0;
+                        record.x = Math.random() * canvas.width;
+                    }
+                    if (
+                        record.y + 10 > player.y &&
+                        record.x > player.x &&
+                        record.x < player.x + player.width
+                    ) {
+                        score++;
+                        record.y = 0;
+                        record.x = Math.random() * canvas.width;
+                        document.getElementById("message").innerText = `Score: ${score}`;
+                    }
+                });
+
+                if (score >= 10) {
+                    document.getElementById("message").innerText = "You won! 🎶";
+                    gameRunning = false;
+                }
+            }
+
+            function movePlayer(event) {
+                if (event.key === "ArrowLeft" && player.x > 0) {
+                    player.x -= 20;
+                } else if (event.key === "ArrowRight" && player.x < canvas.width - player.width) {
+                    player.x += 20;
+                }
+            }
+
+            function gameLoop() {
+                if (!gameRunning) return;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawPlayer();
+                drawRecords();
+                updateRecords();
+                requestAnimationFrame(gameLoop);
+            }
+
+            window.addEventListener("keydown", movePlayer);
+
+            for (let i = 0; i < 3; i++) {
+                records.push({ x: Math.random() * canvas.width, y: Math.random() * 200 });
+            }
+
+            gameLoop();
         }
 
-        function gameLoop() {
-            if (!gameRunning) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawPlayer();
-            drawRecords();
-            updateRecords();
-            requestAnimationFrame(gameLoop);
-        }
-
-        window.addEventListener("keydown", movePlayer);
-
-        for (let i = 0; i < 3; i++) {
-            records.push({ x: Math.random() * canvas.width, y: Math.random() * 200 });
-        }
-
-        gameLoop();
+        startCountdown();
     </script>
 </body>
 </html>
