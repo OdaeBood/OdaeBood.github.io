@@ -8,60 +8,90 @@
         body {
             margin: 0;
             overflow: hidden;
-            background: black;
+            background: url('space-background.gif') no-repeat center center fixed;
+            background-size: cover;
         }
         canvas {
             display: block;
         }
-        /* Overlay Pop-up Instructions & Game Over */
-        .overlay {
-            position: fixed;
+        .popup {
+            position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 400px;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            text-align: center;
+            background: rgba(0, 0, 0, 0.85);
             padding: 20px;
-            border: 2px solid white;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 0 10px white;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+            font-family: Arial, sans-serif;
+            width: 400px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
-        .btn {
+        .popup h2 {
+            margin-bottom: 10px;
+        }
+        .popup p {
+            margin: 10px 0;
+        }
+        .popup button {
             background: white;
             color: black;
-            padding: 10px;
             border: none;
-            font-size: 16px;
+            padding: 10px;
+            font-size: 1rem;
             cursor: pointer;
-            margin-top: 15px;
+            margin-top: 10px;
+            width: 100%;
         }
         .hidden {
             display: none;
         }
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+            font-family: Arial, sans-serif;
+            width: 300px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            display: none;
+        }
+        .game-over button {
+            background: white;
+            color: black;
+            border: none;
+            padding: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
+    <canvas id="gameCanvas"></canvas>
+
     <!-- Instruction Popup -->
-    <div class="overlay" id="instructions">
+    <div id="instructions" class="popup">
         <h2>Welcome to the Vinyl Collection Quest! 🎶</h2>
         <p>🎯 <strong>Collect 10 vinyl records</strong> to complete your mission.</p>
         <p>⚠️ <strong>Avoid the Grammy awards</strong>—getting hit by one ends the game!</p>
         <p>🎮 <strong>Use Left & Right Arrow Keys to Move</strong></p>
-        <button class="btn" onclick="startGame()">Start Game</button>
+        <button onclick="startGame()">Start Game</button>
     </div>
 
     <!-- Game Over Popup -->
-    <div class="overlay hidden" id="gameOverScreen">
-        <h2>💀 Game Over!</h2>
+    <div id="gameOverScreen" class="game-over">
+        <h2>Game Over! 💀</h2>
         <p>You got hit by a Grammy!</p>
-        <button class="btn" onclick="restartGame()">Restart Game</button>
+        <button onclick="restartGame()">Try Again</button>
     </div>
-
-    <canvas id="gameCanvas"></canvas>
 
     <script>
         const canvas = document.getElementById("gameCanvas");
@@ -75,18 +105,18 @@
         let grammyImage = new Image();
         let backgroundImage = new Image();
 
-        playerImage.src = "player.png"; // Upload to GitHub
-        vinylImage.src = "vinyl.png"; // Upload to GitHub
-        grammyImage.src = "grammy.png"; // Upload to GitHub
-        backgroundImage.src = "space-background.gif"; // Upload to GitHub
+        playerImage.src = "spaceship.png"; // Upload this to GitHub
+        vinylImage.src = "vinyl.png"; // Upload this to GitHub
+        grammyImage.src = "grammy.png"; // Upload this to GitHub
+        backgroundImage.src = "space-background.gif"; // Upload this to GitHub
 
         class Player {
             constructor() {
                 this.width = 50;
                 this.height = 50;
                 this.x = canvas.width / 2 - this.width / 2;
-                this.y = canvas.height - 100;
-                this.speed = 8;
+                this.y = canvas.height - 80;
+                this.speed = 6;
                 this.dx = 0;
             }
             draw() {
@@ -99,21 +129,18 @@
             }
         }
 
-        class FallingItem {
+        class FallingObject {
             constructor(type) {
-                this.width = 40;
-                this.height = 40;
+                this.width = 30;
+                this.height = 30;
                 this.x = Math.random() * (canvas.width - this.width);
-                this.y = -this.height;
-                this.speed = Math.random() * 7 + 4; // Increased falling speed
-                this.type = type; // 'vinyl' or 'grammy'
+                this.y = -30;
+                this.speed = 3 + Math.random() * 2;
+                this.type = type;
+                this.image = type === "vinyl" ? vinylImage : grammyImage;
             }
             draw() {
-                if (this.type === "vinyl") {
-                    ctx.drawImage(vinylImage, this.x, this.y, this.width, this.height);
-                } else {
-                    ctx.drawImage(grammyImage, this.x, this.y, this.width, this.height);
-                }
+                ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
             }
             update() {
                 this.y += this.speed;
@@ -121,59 +148,51 @@
         }
 
         let player = new Player();
-        let items = [];
+        let fallingObjects = [];
         let score = 0;
-        let gameOver = false;
+        const maxVinyls = 10;
+        const gameOverScreen = document.getElementById("gameOverScreen");
 
-        function spawnItem() {
-            let type = Math.random() < 0.8 ? "grammy" : "vinyl"; // 80% Grammys, 20% Vinyls
-            items.push(new FallingItem(type));
+        function spawnObjects() {
+            setInterval(() => {
+                let type = Math.random() > 0.7 ? "vinyl" : "grammy"; // More Grammys, fewer Vinyls
+                fallingObjects.push(new FallingObject(type));
+            }, 700);
         }
 
         function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
             player.draw();
-            items.forEach(item => item.draw());
-
-            // Display Score
-            ctx.fillStyle = "white";
-            ctx.font = "20px Arial";
-            ctx.fillText(`Vinyls Collected: ${score}/10`, 20, 30);
+            fallingObjects.forEach(obj => obj.draw());
         }
 
         function update() {
-            if (gameOver) return;
             player.update();
-            items.forEach(item => item.update());
+            fallingObjects.forEach((obj, index) => {
+                obj.update();
+                if (obj.y > canvas.height) {
+                    fallingObjects.splice(index, 1);
+                }
 
-            // Check for collisions
-            items.forEach((item, index) => {
+                // Collision detection
                 if (
-                    player.x < item.x + item.width &&
-                    player.x + player.width > item.x &&
-                    player.y < item.y + item.height &&
-                    player.y + player.height > item.y
+                    player.x < obj.x + obj.width &&
+                    player.x + player.width > obj.x &&
+                    player.y < obj.y + obj.height &&
+                    player.y + player.height > obj.y
                 ) {
-                    if (item.type === "vinyl") {
+                    if (obj.type === "vinyl") {
+                        fallingObjects.splice(index, 1);
                         score++;
-                        items.splice(index, 1);
-                        if (score >= 10) {
-                            document.getElementById("gameOverScreen").innerHTML = `
-                                <h2>🎉 Mission Complete!</h2>
-                                <p>You collected all the vinyls!</p>
-                                <button class="btn" onclick="restartGame()">Restart Game</button>`;
-                            document.getElementById("gameOverScreen").classList.remove("hidden");
+                        if (score >= maxVinyls) {
+                            alert("🎉 Mission Complete! You collected all the vinyls!");
+                            restartGame();
                         }
-                    } else if (item.type === "grammy") {
-                        document.getElementById("gameOverScreen").classList.remove("hidden");
-                        gameOver = true;
+                    } else {
+                        gameOver();
                     }
                 }
             });
-
-            // Remove items that fall off-screen
-            items = items.filter(item => item.y < canvas.height);
         }
 
         function loop() {
@@ -191,22 +210,22 @@
             if (e.key === "ArrowRight" || e.key === "ArrowLeft") player.dx = 0;
         }
 
-        window.addEventListener("keydown", keyDown);
-        window.addEventListener("keyup", keyUp);
-
         function startGame() {
-            document.getElementById("instructions").classList.add("hidden"); // Hide popup
-            items = []; // Reset items
-            score = 0; // Reset score
-            gameOver = false;
-            setInterval(spawnItem, 600); // Spawn items every 0.6 seconds
+            document.getElementById("instructions").classList.add("hidden");
+            spawnObjects();
             loop();
         }
 
-        function restartGame() {
-            document.getElementById("gameOverScreen").classList.add("hidden"); // Hide game over screen
-            startGame();
+        function gameOver() {
+            gameOverScreen.style.display = "block";
         }
+
+        function restartGame() {
+            location.reload();
+        }
+
+        window.addEventListener("keydown", keyDown);
+        window.addEventListener("keyup", keyUp);
     </script>
 </body>
 </html>
