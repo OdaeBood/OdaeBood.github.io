@@ -15,7 +15,7 @@
         canvas {
             display: block;
         }
-        /* Overlay for Welcome, Game Over, and Ambrosia Screens */
+        /* Overlay for Welcome & Game Over Screens */
         .overlay {
             position: absolute;
             top: 50%;
@@ -45,24 +45,6 @@
             margin-top: 15px;
             width: 100%;
         }
-        /* Ambrosia Screen */
-        .black-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: black;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.5rem;
-            text-align: center;
-            font-family: Arial, sans-serif;
-            z-index: 20;
-            padding: 20px;
-        }
     </style>
 </head>
 <body>
@@ -78,16 +60,10 @@
         <button class="btn" onclick="startGame()">Start Game</button>
     </div>
 
-    <!-- Game Over / Mission Complete Overlay -->
+    <!-- Game Over Overlay -->
     <div id="gameOverScreen" class="overlay hidden">
         <h2 id="gameOverMessage"></h2>
         <button class="btn" onclick="restartGame()">Play Again</button>
-        <button class="btn" onclick="continueToAmbrosia()">Continue to Ambrosia</button>
-    </div>
-
-    <!-- Ambrosia Message Screen -->
-    <div id="ambrosiaScreen" class="black-screen hidden">
-        <p>Unfortunately, our crew was sabotaged and given wrong coordinates that delay our mission.<br> Stand by, awaiting new coordinates...</p>
     </div>
 
     <script>
@@ -182,6 +158,7 @@
             items.forEach(item => item.draw());
             beams.forEach(beam => beam.draw());
 
+            // Display Score
             ctx.fillStyle = "white";
             ctx.font = "20px Arial";
             ctx.fillText(`Vinyls Collected: ${score}/10`, 20, 30);
@@ -207,38 +184,75 @@
                         items.splice(index, 1);
                         if (score >= 10) {
                             gameOver = true;
-                            setTimeout(() => {
-                                document.getElementById("gameOverMessage").innerText = "🎉 You collected all 10 vinyls! Mission Complete!";
-                                document.getElementById("gameOverScreen").classList.remove("hidden");
-                            }, 500);
+                            endGame("🎉 You collected all 10 vinyls! Mission Complete!");
                         }
                     } else if (item.type === "grammy") {
                         gameOver = true;
-                        setTimeout(() => {
-                            document.getElementById("gameOverMessage").innerText = "💀 You got hit by a Grammy! Game Over.";
-                            document.getElementById("gameOverScreen").classList.remove("hidden");
-                        }, 500);
+                        endGame("💀 You got hit by a Grammy! Game Over.");
                     }
                 }
+            });
+
+            beams.forEach((beam, beamIndex) => {
+                items.forEach((item, itemIndex) => {
+                    if (
+                        beam.x < item.x + item.width &&
+                        beam.x + beam.width > item.x &&
+                        beam.y < item.y + item.height &&
+                        beam.y + beam.height > item.y &&
+                        item.type === "grammy"
+                    ) {
+                        items.splice(itemIndex, 1);
+                        beams.splice(beamIndex, 1);
+                    }
+                });
             });
 
             items = items.filter(item => item.y < canvas.height);
         }
 
+        function loop() {
+            if (!gameRunning) return;
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        function keyDown(e) {
+            if (e.key === "ArrowRight") player.dx = player.speed;
+            if (e.key === "ArrowLeft") player.dx = -player.speed;
+            if (e.code === "Space" && gameRunning) {
+                beams.push(new Beam(player.x + player.width / 2 - 5, player.y));
+            }
+        }
+
+        function keyUp(e) {
+            if (e.key === "ArrowRight" || e.key === "ArrowLeft") player.dx = 0;
+        }
+
+        window.addEventListener("keydown", keyDown);
+        window.addEventListener("keyup", keyUp);
+
         function startGame() {
             document.getElementById("instructions").classList.add("hidden");
-            gameRunning = true;
             items = [];
             beams = [];
             score = 0;
             gameOver = false;
+            gameRunning = true;
             setInterval(spawnItem, 600);
             loop();
         }
 
-        function continueToAmbrosia() {
+        function endGame(message) {
+            gameRunning = false;
+            document.getElementById("gameOverMessage").innerText = message;
+            document.getElementById("gameOverScreen").classList.remove("hidden");
+        }
+
+        function restartGame() {
             document.getElementById("gameOverScreen").classList.add("hidden");
-            document.getElementById("ambrosiaScreen").classList.remove("hidden");
+            startGame();
         }
     </script>
 </body>
