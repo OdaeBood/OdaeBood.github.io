@@ -13,16 +13,31 @@
         canvas {
             display: block;
         }
+        .debug-info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            background: rgba(0,0,0,0.5);
+            padding: 5px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
+    <div class="debug-info" id="debug-info">Game loading...</div>
     <canvas id="gameCanvas"></canvas>
+
     <script>
+        alert("Game script is running!"); // Check if JS is running
+
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
+
+        let debugText = document.getElementById("debug-info");
 
         let playerImage = new Image();
         let vinylImage = new Image();
@@ -32,10 +47,23 @@
         vinylImage.src = "vinyl.png";
         backgroundImage.src = "space-background.gif";
 
-        // Error handling: Log if images fail to load
-        playerImage.onerror = () => console.error("Error loading spaceship.png - Check if it exists in GitHub.");
-        vinylImage.onerror = () => console.error("Error loading vinyl.png - Check if it exists in GitHub.");
-        backgroundImage.onerror = () => console.error("Error loading space-background.gif - Check if it exists in GitHub.");
+        let imagesLoaded = 0;
+
+        function checkAllImagesLoaded() {
+            imagesLoaded++;
+            if (imagesLoaded >= 3) {
+                debugText.innerText = "All images loaded, starting game!";
+                loop();
+            }
+        }
+
+        playerImage.onload = checkAllImagesLoaded;
+        vinylImage.onload = checkAllImagesLoaded;
+        backgroundImage.onload = checkAllImagesLoaded;
+
+        playerImage.onerror = () => debugText.innerText = "Error loading spaceship.png";
+        vinylImage.onerror = () => debugText.innerText = "Error loading vinyl.png";
+        backgroundImage.onerror = () => debugText.innerText = "Error loading space-background.gif";
 
         class Player {
             constructor() {
@@ -59,7 +87,6 @@
                 this.x += this.dx;
                 this.y += this.dy;
 
-                // Boundary checks
                 if (this.x < 0) this.x = 0;
                 if (this.x + this.width > canvas.width) this.x = canvas.width - this.width;
                 if (this.y < 0) this.y = 0;
@@ -112,7 +139,6 @@
         function update() {
             player.update();
 
-            // Collision detection
             vinyls.forEach((vinyl, index) => {
                 if (
                     player.x < vinyl.x + vinyl.width &&
@@ -152,23 +178,6 @@
         window.addEventListener("keyup", keyUp);
 
         spawnVinyls();
-
-        // Start game **only after images load or log errors**
-        backgroundImage.onload = () => {
-            playerImage.onload = () => {
-                vinylImage.onload = () => {
-                    loop();
-                };
-            };
-        };
-
-        // If images never load, start the game anyway after 3 seconds
-        setTimeout(() => {
-            if (!playerImage.complete || !vinylImage.complete || !backgroundImage.complete) {
-                console.warn("Images failed to load, but starting game anyway.");
-                loop();
-            }
-        }, 3000);
     </script>
 </body>
 </html>
