@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vinyl Record Collection Game</title>
+    <style>
+        body {
+            background: url('outer-space-game-bg.gif') no-repeat center center fixed;
+            background-size: cover;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            color: white;
+        }
+        canvas {
+            display: block;
+            margin: auto;
+            border: 3px solid white;
+        }
+        #game-container {
+            margin-top: 20px;
+        }
+        #score {
+            font-size: 1.5rem;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎵 Vinyl Record Collection Quest 🎵</h1>
+    <p>Collect 10 vinyl records before time runs out!</p>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <p id="score">Records Collected: <span id="scoreCount">0</span> / 10</p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = 800;
+        canvas.height = 500;
+
+        let player = { x: 400, y: 400, width: 50, height: 50, speed: 5 };
+        let records = [];
+        let score = 0;
+
+        function createRecords() {
+            for (let i = 0; i < 10; i++) {
+                records.push({
+                    x: Math.random() * (canvas.width - 30),
+                    y: Math.random() * (canvas.height - 30),
+                    width: 30,
+                    height: 30,
+                    collected: false
+                });
+            }
+        }
+
+        createRecords();
+
+        function drawPlayer() {
+            ctx.fillStyle = "white";
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+        }
+
+        function drawRecords() {
+            ctx.fillStyle = "gold";
+            records.forEach(record => {
+                if (!record.collected) {
+                    ctx.beginPath();
+                    ctx.arc(record.x + 15, record.y + 15, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+        }
+
+        function updateGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPlayer();
+            drawRecords();
+            requestAnimationFrame(updateGame);
+        }
+
+        function checkCollision() {
+            records.forEach(record => {
+                if (
+                    player.x < record.x + record.width &&
+                    player.x + player.width > record.x &&
+                    player.y < record.y + record.height &&
+                    player.y + player.height > record.y
+                ) {
+                    if (!record.collected) {
+                        record.collected = true;
+                        score++;
+                        document.getElementById("scoreCount").innerText = score;
+
+                        if (score === 10) {
+                            alert("🎉 Mission Complete! You collected all the vinyl records!");
+                            window.location.href = "mission-complete.html";
+                        }
+                    }
+                }
+            });
+        }
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowUp") player.y -= player.speed;
+            if (event.key === "ArrowDown") player.y += player.speed;
+            if (event.key === "ArrowLeft") player.x -= player.speed;
+            if (event.key === "ArrowRight") player.x += player.speed;
+            checkCollision();
+        });
+
+        updateGame();
+    </script>
+</body>
+</html>
