@@ -32,7 +32,7 @@
                 visibility: hidden;
             }
         }
-        /* Background GIF for Click the Stars Page */
+        /* Background GIF should stay throughout transmission & test */
         .background {
             position: fixed;
             top: 0;
@@ -106,6 +106,9 @@
     <!-- Hyperdrive Transition -->
     <div id="transition-section" class="hidden transition"></div>
 
+    <!-- Background GIF (Keeps it visible) -->
+    <div class="background hidden" id="gif-background"></div>
+
     <!-- Incoming Transmission Section -->
     <div id="transmission-section" class="text-box hidden">
         <h2>Incoming Transmission...</h2>
@@ -137,6 +140,7 @@
         const quizQuestion = document.getElementById("quiz-question");
         const optionsContainer = document.getElementById("options-container");
         const roleText = document.getElementById("role-text");
+        const gifBackground = document.getElementById("gif-background");
 
         function startCountdown() {
             const interval = setInterval(() => {
@@ -155,6 +159,7 @@
                                 transitionSection.classList.remove("hidden");
                                 setTimeout(() => {
                                     transitionSection.classList.add("hidden");
+                                    gifBackground.classList.remove("hidden"); // Keep GIF visible
                                     transmissionSection.classList.remove("hidden");
                                     typeMessage();
                                 }, 4000); // Show hyperdrive transition for 4 seconds
@@ -219,10 +224,7 @@
         function assignRole() {
             quizSection.classList.add("hidden");
             roleSection.classList.remove("hidden");
-            const roleCounts = {};
-            chosenRoles.forEach(role => roleCounts[role] = (roleCounts[role] || 0) + 1);
-            const finalRole = Object.keys(roleCounts).reduce((a, b) => roleCounts[a] > roleCounts[b] ? a : b);
-            roleText.innerText = `Your role on the ship is: ${finalRole}!`;
+            roleText.innerText = `Your role on the ship is: ${chosenRoles[0]}!`;
         }
 
         startCountdown();
