@@ -47,7 +47,7 @@
         }
         /* Ambrosia Screen */
         .black-screen {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
@@ -207,11 +207,17 @@
                         items.splice(index, 1);
                         if (score >= 10) {
                             gameOver = true;
-                            endGame("🎉 You collected all 10 vinyls! Mission Complete!");
+                            setTimeout(() => {
+                                document.getElementById("gameOverMessage").innerText = "🎉 You collected all 10 vinyls! Mission Complete!";
+                                document.getElementById("gameOverScreen").classList.remove("hidden");
+                            }, 500);
                         }
                     } else if (item.type === "grammy") {
                         gameOver = true;
-                        endGame("💀 You got hit by a Grammy! Game Over.");
+                        setTimeout(() => {
+                            document.getElementById("gameOverMessage").innerText = "💀 You got hit by a Grammy! Game Over.";
+                            document.getElementById("gameOverScreen").classList.remove("hidden");
+                        }, 500);
                     }
                 }
             });
@@ -221,23 +227,13 @@
 
         function startGame() {
             document.getElementById("instructions").classList.add("hidden");
+            gameRunning = true;
             items = [];
             beams = [];
             score = 0;
             gameOver = false;
-            gameRunning = true;
             setInterval(spawnItem, 600);
             loop();
-        }
-
-        function endGame(message) {
-            document.getElementById("gameOverMessage").innerText = message;
-            document.getElementById("gameOverScreen").classList.remove("hidden");
-        }
-
-        function restartGame() {
-            document.getElementById("gameOverScreen").classList.add("hidden");
-            startGame();
         }
 
         function continueToAmbrosia() {
