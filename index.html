@@ -217,7 +217,39 @@
             }, 4000);
         }
 
-        function startGame() { window.location.href = "game.html"; }
+        function startGame() {
+            gameCanvas.classList.remove("hidden");
+            const ctx = gameCanvas.getContext("2d");
+            gameCanvas.width = 800;
+            gameCanvas.height = 400;
+
+            const player = { x: 50, y: 300, width: 40, height: 40, color: "white", dy: 0, gravity: 0.6, jumpPower: -10, grounded: false };
+            const vinyls = [];
+            const obstacles = [];
+            let score = 0;
+            let gameRunning = true;
+
+            function drawPlayer() {
+                ctx.fillStyle = player.color;
+                ctx.fillRect(player.x, player.y, player.width, player.height);
+            }
+
+            function update() {
+                if (!gameRunning) return;
+                ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+                drawPlayer();
+                requestAnimationFrame(update);
+            }
+
+            document.addEventListener("keydown", (e) => {
+                if (e.code === "Space" && player.grounded) {
+                    player.dy = player.jumpPower;
+                    player.grounded = false;
+                }
+            });
+
+            update();
+        }
 
         startCountdown();
     </script>
