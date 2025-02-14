@@ -32,7 +32,7 @@
             box-shadow: 0 0 10px white;
         }
         .hidden {
-            display: none;
+            display: none !important;
         }
         .game-over {
             position: absolute;
@@ -208,8 +208,8 @@
         }
 
         function startGame() {
-            document.getElementById("instructions").classList.add("hidden"); 
-            document.getElementById("gameOverScreen").style.display = "none"; 
+            document.getElementById("instructions").classList.add("hidden"); // Hide popup
+            document.getElementById("gameOverScreen").style.display = "none"; // Hide game over screen
             gameRunning = true;
             score = 0;
             items = [];
@@ -220,7 +220,7 @@
 
         function restartGame() {
             document.getElementById("gameOverScreen").style.display = "none";
-            document.getElementById("instructions").style.display = "flex";
+            document.getElementById("instructions").classList.remove("hidden"); // Reset instructions
             clearInterval(spawnInterval); // Reset interval to avoid stacking
         }
 
