@@ -167,6 +167,7 @@
         let beams = [];
         let score = 0;
         let gameRunning = false;
+        let gameLoop;
 
         function spawnItem() {
             if (!gameRunning) return;
@@ -206,18 +207,18 @@
                         items.splice(index, 1);
                         if (score >= 10) {
                             gameRunning = false;
+                            clearInterval(gameLoop);
                             document.getElementById("gameOverMessage").innerText = "🎉 You collected all 10 vinyls! Mission Complete!";
                             document.getElementById("gameOverScreen").classList.remove("hidden");
                         }
                     } else if (item.type === "grammy") {
                         gameRunning = false;
+                        clearInterval(gameLoop);
                         document.getElementById("gameOverMessage").innerText = "💀 You got hit by a Grammy! Game Over.";
                         document.getElementById("gameOverScreen").classList.remove("hidden");
                     }
                 }
             });
-
-            items = items.filter(item => item.y < canvas.height);
         }
 
         function startGame() {
@@ -226,8 +227,11 @@
             beams = [];
             score = 0;
             gameRunning = true;
-            setInterval(spawnItem, 600);
-            requestAnimationFrame(update);
+            gameLoop = setInterval(() => {
+                spawnItem();
+                update();
+                draw();
+            }, 30);
         }
 
         function continueToAmbrosia() {
