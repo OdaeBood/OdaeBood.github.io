@@ -13,57 +13,68 @@
         canvas {
             display: block;
         }
-        .debug-info {
-            position: absolute;
-            top: 10px;
-            left: 10px;
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
             color: white;
-            background: rgba(0,0,0,0.5);
-            padding: 5px;
-            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 100;
+        }
+        .overlay-content {
+            background: black;
+            padding: 20px;
+            border: 2px solid white;
+            max-width: 500px;
+            font-size: 18px;
+        }
+        .close-btn {
+            background: white;
+            color: black;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="debug-info" id="debug-info">Game loading...</div>
+    <!-- Instruction Overlay -->
+    <div class="overlay" id="instructions">
+        <div class="overlay-content">
+            <h2>Welcome to the Vinyl Collection Quest!</h2>
+            <p>🎶 **Collect 10 vinyl records** to complete your mission.</p>
+            <p>🏆 **Avoid the Grammy awards**—getting hit by one ends the game!</p>
+            <p>⬅️➡️ **Move using Arrow Keys**</p>
+            <button class="close-btn" onclick="startGame()">Start Game</button>
+        </div>
+    </div>
+
     <canvas id="gameCanvas"></canvas>
 
     <script>
-        alert("Game script is running!"); // Check if JS is running
-
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        let debugText = document.getElementById("debug-info");
-
         let playerImage = new Image();
         let vinylImage = new Image();
+        let grammyImage = new Image();
         let backgroundImage = new Image();
 
-        playerImage.src = "spaceship.png";
-        vinylImage.src = "vinyl.png";
-        backgroundImage.src = "space-background.gif";
-
-        let imagesLoaded = 0;
-
-        function checkAllImagesLoaded() {
-            imagesLoaded++;
-            if (imagesLoaded >= 3) {
-                debugText.innerText = "All images loaded, starting game!";
-                loop();
-            }
-        }
-
-        playerImage.onload = checkAllImagesLoaded;
-        vinylImage.onload = checkAllImagesLoaded;
-        backgroundImage.onload = checkAllImagesLoaded;
-
-        playerImage.onerror = () => debugText.innerText = "Error loading spaceship.png";
-        vinylImage.onerror = () => debugText.innerText = "Error loading vinyl.png";
-        backgroundImage.onerror = () => debugText.innerText = "Error loading space-background.gif";
+        playerImage.src = "player.png"; // Upload to GitHub
+        vinylImage.src = "vinyl.png"; // Upload to GitHub
+        grammyImage.src = "grammy.png"; // Upload to GitHub
+        backgroundImage.src = "space-background.gif"; // Upload to GitHub
 
         class Player {
             constructor() {
@@ -71,89 +82,91 @@
                 this.height = 50;
                 this.x = canvas.width / 2 - this.width / 2;
                 this.y = canvas.height - 100;
-                this.speed = 5;
+                this.speed = 8;
                 this.dx = 0;
-                this.dy = 0;
             }
             draw() {
-                if (playerImage.complete && playerImage.naturalHeight !== 0) {
-                    ctx.drawImage(playerImage, this.x, this.y, this.width, this.height);
-                } else {
-                    ctx.fillStyle = "blue";
-                    ctx.fillRect(this.x, this.y, this.width, this.height);
-                }
+                ctx.drawImage(playerImage, this.x, this.y, this.width, this.height);
             }
             update() {
                 this.x += this.dx;
-                this.y += this.dy;
-
                 if (this.x < 0) this.x = 0;
                 if (this.x + this.width > canvas.width) this.x = canvas.width - this.width;
-                if (this.y < 0) this.y = 0;
-                if (this.y + this.height > canvas.height) this.y = canvas.height - this.height;
             }
         }
 
-        class Vinyl {
-            constructor() {
-                this.width = 30;
-                this.height = 30;
+        class FallingItem {
+            constructor(type) {
+                this.width = 40;
+                this.height = 40;
                 this.x = Math.random() * (canvas.width - this.width);
-                this.y = Math.random() * (canvas.height - this.height - 100);
+                this.y = -this.height;
+                this.speed = Math.random() * 3 + 2; // Random fall speed
+                this.type = type; // 'vinyl' or 'grammy'
             }
             draw() {
-                if (vinylImage.complete && vinylImage.naturalHeight !== 0) {
+                if (this.type === "vinyl") {
                     ctx.drawImage(vinylImage, this.x, this.y, this.width, this.height);
                 } else {
-                    ctx.fillStyle = "gold";
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, 15, 0, Math.PI * 2);
-                    ctx.fill();
+                    ctx.drawImage(grammyImage, this.x, this.y, this.width, this.height);
                 }
+            }
+            update() {
+                this.y += this.speed;
             }
         }
 
         let player = new Player();
-        let vinyls = [];
+        let items = [];
         let score = 0;
-        const maxVinyls = 10;
+        let gameOver = false;
 
-        function spawnVinyls() {
-            for (let i = 0; i < maxVinyls; i++) {
-                vinyls.push(new Vinyl());
-            }
+        function spawnItem() {
+            let type = Math.random() < 0.8 ? "vinyl" : "grammy"; // 80% Vinyls, 20% Grammys
+            items.push(new FallingItem(type));
         }
 
         function draw() {
-            if (backgroundImage.complete && backgroundImage.naturalHeight !== 0) {
-                ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-            } else {
-                ctx.fillStyle = "black";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-            }
-
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
             player.draw();
-            vinyls.forEach(vinyl => vinyl.draw());
+            items.forEach(item => item.draw());
+
+            // Display Score
+            ctx.fillStyle = "white";
+            ctx.font = "20px Arial";
+            ctx.fillText(`Vinyls Collected: ${score}/10`, 20, 30);
         }
 
         function update() {
+            if (gameOver) return;
             player.update();
+            items.forEach(item => item.update());
 
-            vinyls.forEach((vinyl, index) => {
+            // Check for collisions
+            items.forEach((item, index) => {
                 if (
-                    player.x < vinyl.x + vinyl.width &&
-                    player.x + player.width > vinyl.x &&
-                    player.y < vinyl.y + vinyl.height &&
-                    player.y + player.height > vinyl.y
+                    player.x < item.x + item.width &&
+                    player.x + player.width > item.x &&
+                    player.y < item.y + item.height &&
+                    player.y + player.height > item.y
                 ) {
-                    vinyls.splice(index, 1);
-                    score++;
-                    if (score >= maxVinyls) {
-                        alert("You collected all the vinyls! Mission complete!");
+                    if (item.type === "vinyl") {
+                        score++;
+                        items.splice(index, 1);
+                        if (score >= 10) {
+                            alert("🎉 You collected all the vinyls! Mission Complete!");
+                            document.location.reload();
+                        }
+                    } else if (item.type === "grammy") {
+                        alert("💀 You got hit by a Grammy! Game Over.");
                         document.location.reload();
                     }
                 }
             });
+
+            // Remove items that fall off-screen
+            items = items.filter(item => item.y < canvas.height);
         }
 
         function loop() {
@@ -165,19 +178,20 @@
         function keyDown(e) {
             if (e.key === "ArrowRight") player.dx = player.speed;
             if (e.key === "ArrowLeft") player.dx = -player.speed;
-            if (e.key === "ArrowUp") player.dy = -player.speed;
-            if (e.key === "ArrowDown") player.dy = player.speed;
         }
 
         function keyUp(e) {
             if (e.key === "ArrowRight" || e.key === "ArrowLeft") player.dx = 0;
-            if (e.key === "ArrowUp" || e.key === "ArrowDown") player.dy = 0;
         }
 
         window.addEventListener("keydown", keyDown);
         window.addEventListener("keyup", keyUp);
 
-        spawnVinyls();
+        function startGame() {
+            document.getElementById("instructions").style.display = "none"; // Remove overlay
+            setInterval(spawnItem, 1000); // Spawn items every second
+            loop();
+        }
     </script>
 </body>
 </html>
