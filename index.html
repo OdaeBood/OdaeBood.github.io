@@ -16,7 +16,7 @@
             align-items: center;
             height: 100vh;
             overflow: hidden;
-            background-color: black; /* Default black background */
+            background-color: black; /* Default background */
         }
         
         .hidden {
@@ -38,7 +38,7 @@
             }
         }
 
-        /* Background GIF for specific pages */
+        /* Background GIF for Incoming Transmission & Compatibility Test */
         .animated-background {
             position: fixed;
             top: 0;
@@ -54,6 +54,7 @@
             background: rgba(0, 0, 0, 0.6);
             padding: 20px;
             border-radius: 10px;
+            color: white;
         }
 
         .transition {
@@ -71,6 +72,7 @@
             background: rgba(0, 0, 0, 0.6);
             padding: 20px;
             border: 2px solid white;
+            color: white;
         }
 
         .typing-text {
@@ -111,18 +113,22 @@
     </style>
 </head>
 <body>
+    <!-- AWAITING COORDINATES -->
     <div id="countdown-section">
         <h1>Awaiting Coordinates...</h1>
         <h2 id="countdown">10</h2>
     </div>
 
+    <!-- COORDINATES RECEIVED -->
     <div id="coordinates-section" class="hidden">
         <h1 class="blink">Coordinates Received!</h1>
         <p>Galaxy: Andromeda | Sector 7B | Vector 42</p>
     </div>
 
+    <!-- HYPERDRIVE TRANSITION -->
     <div id="transition-section" class="hidden transition"></div>
 
+    <!-- INCOMING TRANSMISSION -->
     <div id="incoming-transmission" class="hidden animated-background">
         <div class="text-box">
             <h1>Incoming Transmission...</h1>
@@ -130,6 +136,7 @@
         </div>
     </div>
 
+    <!-- COSMIC COMPATIBILITY TEST -->
     <div id="compatibility-test" class="hidden animated-background">
         <div class="compatibility-test">
             <h2>Cosmic Compatibility Test</h2>
