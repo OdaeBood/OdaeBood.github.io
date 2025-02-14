@@ -32,6 +32,7 @@
                 visibility: hidden;
             }
         }
+        /* Fix Background for Incoming Transmission */
         .background {
             position: fixed;
             top: 0;
@@ -57,35 +58,6 @@
             overflow: hidden;
             display: inline-block;
         }
-        .options {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .option {
-            padding: 10px;
-            border: 2px solid white;
-            background: none;
-            color: white;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .option:hover {
-            background: white;
-            color: black;
-        }
-        .transition {
-            background: url('hyperdrive-transition.gif') no-repeat center center;
-            background-size: cover;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 10;
-        }
     </style>
 </head>
 <body>
@@ -102,22 +74,12 @@
     <div id="transition-section" class="hidden transition"></div>
 
     <!-- INCOMING TRANSMISSION -->
-    <div id="transmission-section" class="text-box hidden">
-        <h2>Incoming Transmission...</h2>
-        <p id="typing-text" class="typing"></p>
-    </div>
-
-    <!-- COSMIC COMPATIBILITY TEST -->
-    <div id="quiz-section" class="text-box hidden">
-        <h2>Cosmic Compatibility Test</h2>
-        <p id="quiz-question"></p>
-        <div class="options" id="options-container"></div>
-    </div>
-
-    <!-- ROLE ASSIGNMENT -->
-    <div id="role-section" class="text-box hidden">
-        <h2>Congratulations!</h2>
-        <p id="role-text"></p>
+    <div id="transmission-section" class="hidden">
+        <div class="background"></div> <!-- Background added here -->
+        <div class="text-box">
+            <h2>Incoming Transmission...</h2>
+            <p id="typing-text" class="typing"></p>
+        </div>
     </div>
 
     <script>
@@ -127,12 +89,7 @@
         const coordinatesSection = document.getElementById("coordinates-section");
         const transitionSection = document.getElementById("transition-section");
         const transmissionSection = document.getElementById("transmission-section");
-        const quizSection = document.getElementById("quiz-section");
-        const roleSection = document.getElementById("role-section");
         const typingText = document.getElementById("typing-text");
-        const quizQuestion = document.getElementById("quiz-question");
-        const optionsContainer = document.getElementById("options-container");
-        const roleText = document.getElementById("role-text");
 
         function startCountdown() {
             const interval = setInterval(() => {
@@ -169,72 +126,7 @@
                 typingText.innerHTML += message[currentIndex];
                 currentIndex++;
                 setTimeout(typeMessage, 50);
-            } else {
-                setTimeout(startQuiz, 2000);
             }
-        }
-
-        // Quiz Data
-        const quizData = [
-            {
-                question: "Which celestial body fascinates you the most?",
-                options: ["A Black Hole", "A Distant Galaxy", "A Pulsar Star"],
-                answers: ["Navigator", "Engineer", "Communications Officer"]
-            },
-            {
-                question: "If you were given command, how would you lead?",
-                options: ["With Precise Calculations", "With Innovative Ideas", "With Motivational Speeches"],
-                answers: ["Captain", "Scientist", "Diplomat"]
-            },
-            {
-                question: "In the event of an alien encounter, what is your first response?",
-                options: ["Observe from a distance", "Attempt communication", "Prepare for battle"],
-                answers: ["Explorer", "Linguist", "Defender"]
-            }
-        ];
-
-        let questionIndex = 0;
-        let chosenRoles = [];
-
-        function startQuiz() {
-            transmissionSection.classList.add("hidden");
-            quizSection.classList.remove("hidden");
-            showQuestion();
-        }
-
-        function showQuestion() {
-            if (questionIndex < quizData.length) {
-                const data = quizData[questionIndex];
-                quizQuestion.innerText = data.question;
-                optionsContainer.innerHTML = "";
-
-                data.options.forEach((option, i) => {
-                    const btn = document.createElement("button");
-                    btn.classList.add("option");
-                    btn.innerText = option;
-                    btn.onclick = () => {
-                        chosenRoles.push(data.answers[i]);
-                        questionIndex++;
-                        showQuestion();
-                    };
-                    optionsContainer.appendChild(btn);
-                });
-            } else {
-                assignRole();
-            }
-        }
-
-        function assignRole() {
-            quizSection.classList.add("hidden");
-            roleSection.classList.remove("hidden");
-
-            const roleCounts = {};
-            chosenRoles.forEach(role => {
-                roleCounts[role] = (roleCounts[role] || 0) + 1;
-            });
-
-            const finalRole = Object.keys(roleCounts).reduce((a, b) => roleCounts[a] > roleCounts[b] ? a : b);
-            roleText.innerText = `Your role on the ship is: ${finalRole}!`;
         }
 
         startCountdown();
