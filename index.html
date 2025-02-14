@@ -86,6 +86,20 @@
             height: 100vh;
             z-index: 10;
         }
+        /* Game Canvas */
+        .game-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: url('game-background.gif') no-repeat center center;
+            background-size: cover;
+        }
+        canvas {
+            display: block;
+            margin: auto;
+        }
     </style>
 </head>
 <body>
@@ -120,7 +134,7 @@
         <p id="nickname-text"></p>
         <p>We've set course for <strong>Planet Ambrosia</strong>. A world of celestial melodies and harmonic wonders.</p>
         <p>Are you ready to embark on the next phase of your journey?</p>
-        <button onclick="startGame()" class="option">🚀 Let's go!</button>
+        <button onclick="activateHyperdrive()" class="option">🚀 Let's go!</button>
     </div>
 
     <script>
@@ -166,66 +180,80 @@
             }, 1000);
         }
 
-        const message = "Hi Delah, this is the captain speaking. We are currently travelling at light speed towards our destination. Why don't we burn some time along the way?";
-        const typingText = document.getElementById("typing-text");
-        let currentIndex = 0;
+        function activateHyperdrive() {
+            roleSection.classList.add("hidden");
+            transitionSection.classList.remove("hidden");
 
-        function typeMessage() {
-            if (currentIndex < message.length) {
-                typingText.innerHTML += message[currentIndex];
-                currentIndex++;
-                setTimeout(typeMessage, 50);
-            } else {
-                setTimeout(startQuiz, 2000);
-            }
-        }
-
-        const quizData = [
-            { question: "Which celestial body fascinates you the most?", options: ["A Black Hole", "A Distant Galaxy", "The Moon"], answers: ["Navigator", "Engineer", "Communications Officer"] },
-            { question: "If you were given command, how would you lead?", options: ["With Precise Calculations", "With Innovative Ideas", "With Motivational Speeches"], answers: ["Captain", "Scientist", "Diplomat"] },
-            { question: "In the event of an alien encounter, what is your first response?", options: ["Observe from a distance", "Attempt communication", "Prepare for battle"], answers: ["Explorer", "Linguist", "Defender"] }
-        ];
-
-        let questionIndex = 0;
-        let chosenRoles = [];
-
-        function startQuiz() {
-            transmissionSection.classList.add("hidden");
-            quizSection.classList.remove("hidden");
-            showQuestion();
-        }
-
-        function showQuestion() {
-            if (questionIndex < quizData.length) {
-                const data = quizData[questionIndex];
-                quizQuestion.innerText = data.question;
-                optionsContainer.innerHTML = "";
-
-                data.options.forEach((option, i) => {
-                    const btn = document.createElement("button");
-                    btn.classList.add("option");
-                    btn.innerText = option;
-                    btn.onclick = () => {
-                        chosenRoles.push(data.answers[i]);
-                        questionIndex++;
-                        showQuestion();
-                    };
-                    optionsContainer.appendChild(btn);
-                });
-            } else {
-                assignRole();
-            }
-        }
-
-        function assignRole() {
-            quizSection.classList.add("hidden");
-            roleSection.classList.remove("hidden");
-            roleText.innerText = Your role on the ship is: ${chosenRoles[0]}!;
-            nicknameText.innerText = The crew has given you the nickname: "Ms. Calypso" for your raw talent and unwavering passion for music.;
+            setTimeout(() => {
+                transitionSection.classList.add("hidden");
+                startGame();
+            }, 4000);
         }
 
         function startGame() {
-            window.location.href = "game.html";
+            document.body.innerHTML = `<div class="game-container">
+                <canvas id="gameCanvas" width="800" height="600"></canvas>
+            </div>`;
+
+            let gameCanvas = document.getElementById("gameCanvas");
+            let ctx = gameCanvas.getContext("2d");
+
+            let player = { x: 400, y: 500, width: 50, height: 50, speed: 5 };
+            let records = [];
+            let score = 0;
+
+            function createRecords() {
+                for (let i = 0; i < 10; i++) {
+                    records.push({
+                        x: Math.random() * 750,
+                        y: Math.random() * 550,
+                        width: 20,
+                        height: 20
+                    });
+                }
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+                ctx.fillStyle = "blue";
+                ctx.fillRect(player.x, player.y, player.width, player.height);
+
+                ctx.fillStyle = "yellow";
+                records.forEach(record => {
+                    ctx.fillRect(record.x, record.y, record.width, record.height);
+                });
+
+                ctx.fillStyle = "white";
+                ctx.fillText("Score: " + score, 10, 20);
+            }
+
+            function update() {
+                document.addEventListener("keydown", function (event) {
+                    if (event.key === "ArrowLeft") player.x -= player.speed;
+                    if (event.key === "ArrowRight") player.x += player.speed;
+                    if (event.key === "ArrowUp") player.y -= player.speed;
+                    if (event.key === "ArrowDown") player.y += player.speed;
+                });
+
+                records = records.filter(record => {
+                    if (player.x < record.x + record.width &&
+                        player.x + player.width > record.x &&
+                        player.y < record.y + record.height &&
+                        player.y + player.height > record.y) {
+                        score++;
+                        return false;
+                    }
+                    return true;
+                });
+
+                if (score >= 10) alert("Mission complete!");
+            }
+
+            createRecords();
+            setInterval(() => {
+                update();
+                draw();
+            }, 1000 / 30);
         }
 
         startCountdown();
