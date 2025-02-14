@@ -21,13 +21,20 @@
             justify-content: center;
             height: 100vh;
         }
-        #countdown, #coordinates {
+        #countdown {
             font-size: 2rem;
             margin-bottom: 20px;
         }
         #coordinates {
+            font-size: 2rem;
+            margin-bottom: 20px;
             opacity: 0;
-            transition: opacity 2s ease-in-out;
+            transition: opacity 1s ease-in-out;
+            animation: blink 1s infinite alternate;
+        }
+        @keyframes blink {
+            0% { opacity: 1; }
+            100% { opacity: 0.4; }
         }
         .stars-container {
             display: none;
@@ -79,8 +86,8 @@
                 if (countdownValue < 0) {
                     clearInterval(countdownInterval);
                     document.getElementById("countdown").style.display = "none";
-                    document.getElementById("statusText").innerText = "Coordinates Received:";
                     document.getElementById("coordinates").style.opacity = "1";
+                    document.getElementById("statusText").innerText = "Coordinates Received!";
                     
                     setTimeout(() => {
                         document.getElementById("coordinates").style.opacity = "0";
