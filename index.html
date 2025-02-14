@@ -86,6 +86,18 @@
             height: 100vh;
             z-index: 10;
         }
+        .game-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: url('space-game-bg.gif') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
@@ -120,7 +132,7 @@
         <p id="nickname-text"></p>
         <p>We've set course for <strong>Planet Ambrosia</strong>. A world of celestial melodies and harmonic wonders.</p>
         <p>Are you ready to embark on the next phase of your journey?</p>
-        <button onclick="startGame()" class="option">🚀 Let's go!</button>
+        <button onclick="activateHyperdrive()" class="option">🚀 Let's go!</button>
     </div>
 
     <script>
@@ -166,54 +178,68 @@
             }, 1000);
         }
 
-        const message = "Hi Delah, this is the captain speaking. We are currently travelling at light speed towards our destination. Why don't we burn some time along the way?";
-        let currentIndex = 0;
-
-        function typeMessage() {
-            if (currentIndex < message.length) {
-                typingText.innerHTML += message[currentIndex];
-                currentIndex++;
-                setTimeout(typeMessage, 50);
-            } else {
-                setTimeout(startQuiz, 2000);
-            }
-        }
-
-        function startQuiz() {
-            transmissionSection.classList.add("hidden");
-            quizSection.classList.remove("hidden");
-            showQuestion();
-        }
-
-        function showQuestion() {
-            const data = {
-                question: "Which celestial body fascinates you the most?",
-                options: ["A Black Hole", "A Distant Galaxy", "The Moon"],
-                answers: ["Navigator", "Engineer", "Communications Officer"]
-            };
-
-            quizQuestion.innerText = data.question;
-            optionsContainer.innerHTML = "";
-
-            data.options.forEach((option, i) => {
-                const btn = document.createElement("button");
-                btn.classList.add("option");
-                btn.innerText = option;
-                btn.onclick = () => {
-                    roleText.innerText = `Your role on the ship is: ${data.answers[i]}!`;
-                    nicknameText.innerText = `The crew has given you the nickname: "Ms. Calypso" for your raw talent and unwavering passion for music.`;
-                    quizSection.classList.add("hidden");
-                    roleSection.classList.remove("hidden");
-                };
-                optionsContainer.appendChild(btn);
-            });
+        function activateHyperdrive() {
+            roleSection.classList.add("hidden");
+            transitionSection.classList.remove("hidden");
+            setTimeout(() => {
+                transitionSection.classList.add("hidden");
+                startGame();
+            }, 4000);
         }
 
         function startGame() {
-            transitionSection.classList.remove("hidden");
-            setTimeout(() => {
-                window.location.href = "game.html";
-            }, 4000);
+            document.body.innerHTML = `
+                <div class="game-container">
+                    <canvas id="gameCanvas" width="800" height="600"></canvas>
+                </div>`;
+            initializeGame();
+        }
+
+        function initializeGame() {
+            let gameCanvas = document.getElementById("gameCanvas");
+            let ctx = gameCanvas.getContext("2d");
+
+            let player = { x: 400, y: 500, width: 50, height: 50, speed: 5 };
+            let records = [];
+            let score = 0;
+
+            function createRecords() {
+                for (let i = 0; i < 10; i++) {
+                    records.push({
+                        x: Math.random() * 750,
+                        y: Math.random() * 550,
+                        width: 20,
+                        height: 20
+                    });
+                }
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+                ctx.fillStyle = "blue";
+                ctx.fillRect(player.x, player.y, player.width, player.height);
+                ctx.fillStyle = "yellow";
+                records.forEach(record => {
+                    ctx.fillRect(record.x, record.y, record.width, record.height);
+                });
+                ctx.fillStyle = "white";
+                ctx.fillText("Score: " + score, 10, 20);
+            }
+
+            function update() {
+                records = records.filter(record => {
+                    if (player.x < record.x + record.width && player.x + player.width > record.x &&
+                        player.y < record.y + record.height && player.y + player.height > record.y) {
+                        score++;
+                        return false;
+                    }
+                    return true;
+                });
+                if (score >= 10) alert("Mission complete!");
+            }
+
+            createRecords();
+            setInterval(() => { update(); draw(); }, 1000 / 30);
         }
 
         startCountdown();
