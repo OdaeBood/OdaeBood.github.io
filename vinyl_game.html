@@ -244,13 +244,16 @@
             loop();
         }
 
-       function endGame(message) {
+       function endGame(message, won = false) {
     gameRunning = false;
-    document.getElementById("gameOverMessage").innerHTML = `
-        <h2>${message}</h2>
-        <button class="btn" onclick="restartGame()">Play Again</button>
-        <button class="btn" onclick="continueToAmbrosia()">Continue to Ambrosia</button>
-    `;
+    let gameOverMessage = `<h2>${message}</h2>`;
+    gameOverMessage += `<button class="btn" onclick="restartGame()">Play Again</button>`;
+
+    if (won) { // Only show "Continue to Ambrosia" if the player wins
+        gameOverMessage += `<button class="btn" onclick="continueToAmbrosia()">Continue to Ambrosia</button>`;
+    }
+
+    document.getElementById("gameOverMessage").innerHTML = gameOverMessage;
     document.getElementById("gameOverScreen").classList.remove("hidden");
 }
 function continueToAmbrosia() {
