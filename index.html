@@ -5,168 +5,135 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Decrypting Coordinates</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            text-align: center;
+            background-color: black;
             color: white;
             font-family: Arial, sans-serif;
-            background: black;
-        }
-
-        .container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.5);
-            padding: 20px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 600px;
-        }
-
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-        }
-
-        .stars {
+            text-align: center;
             display: flex;
+            flex-direction: column;
             justify-content: center;
-            gap: 20px;
-        }
-
-        .star {
-            width: 50px;
-            height: 50px;
-            cursor: pointer;
-        }
-
-        #transition-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
+            align-items: center;
             height: 100vh;
-            background: black url('hyperspace-transition.gif') no-repeat center center;
-            background-size: cover;
-            display: none;
-            z-index: 10;
+            overflow: hidden;
         }
-
         .hidden {
             display: none;
         }
-
-        /* Countdown & Coordinates Screen */
-        #awaiting-coordinates, #coordinates-received {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            font-size: 2rem;
-            font-weight: bold;
+        .fade-out {
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
         }
-
-        /* Click the Stars Page Background */
-        #decrypt-message {
-            background: url('psychedelic-background.gif') no-repeat center center fixed;
+        .blink {
+            animation: blink-animation 1s steps(2, start) infinite;
+        }
+        @keyframes blink-animation {
+            to {
+                visibility: hidden;
+            }
+        }
+        .background {
+            background-image: url('psychedelic-background.jpg');
             background-size: cover;
-            width: 100vw;
-            height: 100vh;
-            position: fixed;
+            background-position: center;
+            position: absolute;
             top: 0;
             left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
         }
-
-        .fade-out {
-            animation: fadeOut 1s forwards;
+        .text-box {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
         }
-
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
+        .stars {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
         }
-
+        .star {
+            font-size: 40px;
+            cursor: pointer;
+            color: gold;
+        }
+        .transition {
+            background: url('hyperdrive-transition.gif') no-repeat center center;
+            background-size: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+        }
     </style>
 </head>
 <body>
-
-<!-- Countdown Screen -->
-<div id="awaiting-coordinates">
-    <p>Awaiting Coordinates...</p>
-    <p id="countdown">10</p>
-</div>
-
-<!-- Coordinates Received -->
-<div id="coordinates-received" class="hidden">
-    <p>Coordinates Received!</p>
-    <p>Galaxy: Andromeda | Sector 7B | Vector 42</p>
-</div>
-
-<!-- Transition Effect -->
-<div id="transition-screen"></div>
-
-<!-- Click the Stars Page -->
-<div class="container hidden" id="decrypt-message">
-    <h1>Click the stars to decrypt the message:</h1>
-    <div class="stars">
-        <img src="star.png" class="star" onclick="revealMessage(1)">
-        <img src="star.png" class="star" onclick="revealMessage(2)">
-        <img src="star.png" class="star" onclick="revealMessage(3)">
+    <div id="countdown-section">
+        <h1>Awaiting Coordinates...</h1>
+        <h2 id="countdown">10</h2>
     </div>
-    <p id="message" class="hidden">Decryption in progress...</p>
-</div>
 
-<script>
-    let countdown = 10;
-    let foundStars = 0;
+    <div id="coordinates-section" class="hidden">
+        <h1 class="blink">Coordinates Received!</h1>
+        <p>Galaxy: Andromeda | Sector 7B | Vector 42</p>
+    </div>
 
-    function startCountdown() {
-        let countdownElement = document.getElementById("countdown");
-        let interval = setInterval(() => {
-            countdown--;
-            countdownElement.textContent = countdown;
+    <div id="transition-section" class="hidden transition"></div>
 
-            if (countdown <= 0) {
-                clearInterval(interval);
-                document.getElementById("awaiting-coordinates").classList.add("fade-out");
-                setTimeout(() => {
-                    document.getElementById("awaiting-coordinates").style.display = "none";
-                    document.getElementById("coordinates-received").classList.remove("hidden");
+    <div id="decrypt-section" class="hidden">
+        <div class="background"></div>
+        <div class="text-box">
+            <h1>Click the stars to decrypt the message:</h1>
+            <div class="stars">
+                <span class="star" onclick="decryptStar(1)">&#9733;</span>
+                <span class="star" onclick="decryptStar(2)">&#9733;</span>
+                <span class="star" onclick="decryptStar(3)">&#9733;</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let countdown = 10;
+        const countdownElement = document.getElementById("countdown");
+        const countdownSection = document.getElementById("countdown-section");
+        const coordinatesSection = document.getElementById("coordinates-section");
+        const transitionSection = document.getElementById("transition-section");
+        const decryptSection = document.getElementById("decrypt-section");
+
+        function startCountdown() {
+            const interval = setInterval(() => {
+                countdown--;
+                countdownElement.innerText = countdown;
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    countdownSection.classList.add("fade-out");
                     setTimeout(() => {
-                        document.getElementById("coordinates-received").classList.add("fade-out");
+                        countdownSection.classList.add("hidden");
+                        coordinatesSection.classList.remove("hidden");
                         setTimeout(() => {
-                            document.getElementById("coordinates-received").style.display = "none";
-                            document.getElementById("decrypt-message").classList.remove("hidden");
-                        }, 1000);
+                            coordinatesSection.classList.add("fade-out");
+                            setTimeout(() => {
+                                coordinatesSection.classList.add("hidden");
+                                transitionSection.classList.remove("hidden");
+                                setTimeout(() => {
+                                    transitionSection.classList.add("hidden");
+                                    decryptSection.classList.remove("hidden");
+                                }, 4000); // Show transition GIF for 4 seconds
+                            }, 2000);
+                        }, 4000);
                     }, 2000);
-                }, 1000);
-            }
-        }, 1000);
-    }
-
-    function revealMessage(star) {
-        foundStars++;
-        if (foundStars === 3) {
-            document.getElementById("message").classList.remove("hidden");
-            setTimeout(() => {
-                document.getElementById("transition-screen").style.display = "block";
-                setTimeout(() => {
-                    window.location.href = "nextpage.html"; // Change to the next page
-                }, 3000);
+                }
             }, 1000);
         }
-    }
+        
+        function decryptStar(index) {
+            document.querySelectorAll(".star")[index - 1].style.color = "white";
+        }
 
-    window.onload = startCountdown;
-</script>
-
+        startCountdown();
+    </script>
 </body>
 </html>
